@@ -1,0 +1,6 @@
+Options +FollowSymLinks
+RewriteEngine On
+RewriteBase /p/
+
+# Rewrite /p/TOKEN to /p/index.php?t=TOKEN
+RewriteRule ^([a-zA-Z0-9]{6,16})/?$ index.php?t=$1 [L,QSA]
