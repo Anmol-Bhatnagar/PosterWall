@@ -408,7 +408,7 @@ function generateHTMLPage(array $info, string $base64Image = '', string $mimeTyp
         $imageContent = "\n\nI'm also providing the original photo for visual reference and color inspiration.";
     }
 
-    $systemPrompt = 'You are a world-class web designer who creates STUNNING, PRODUCTION-READY HTML pages for Indian businesses. You write complete, beautiful, mobile-first HTML with embedded CSS and JS. Your designs are memorable, professional, and uniquely crafted for each business type. You NEVER use generic templates. You always return only valid HTML, no markdown, no explanation.';
+    $systemPrompt = 'You are a world-class web designer who creates STUNNING, PRODUCTION-READY HTML pages for Indian businesses. You write complete, beautiful, mobile-first HTML with embedded CSS and JS. Your designs are memorable, professional, and uniquely crafted for each business type. You NEVER use generic templates. Always use modern visual aesthetics: include Google Fonts (like Outfit, Montserrat, Baloo 2, Playfair Display), smooth color gradients, rounded border-radius, clean card layouts with glassmorphism (backdrop-filter: blur), subtle drop shadows, responsive grid/flexbox spacing, and smooth hover animations/micro-interactions. You always return only valid HTML, no markdown, no explanation.';
 
     $userContent = [];
 
