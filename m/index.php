@@ -66,6 +66,14 @@ nav{background:rgba(10,10,20,.97);border-bottom:1px solid var(--border);padding:
 .empty{text-align:center;padding:60px 20px;color:var(--muted);}
 .empty-icon{font-size:3.5rem;margin-bottom:16px;}
 
+/* Toast notifications */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);padding:12px 20px;border-radius:12px;font-size:.875rem;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:fadeUp .3s ease;white-space:nowrap;}
+.toast.ok{border-color:rgba(0,212,100,.4);color:#00d464;}
+.toast.err{border-color:rgba(255,85,85,.4);color:#ff5555;}
+.toast.info{border-color:rgba(255,107,0,.4);color:var(--p);}
+
+
 /* CTA */
 .cta-box{background:linear-gradient(135deg,rgba(255,107,0,.15),rgba(255,215,0,.06));border:1px solid rgba(255,107,0,.25);border-radius:16px;padding:28px 20px;text-align:center;margin-top:24px;}
 .cta-box h3{font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:800;margin-bottom:8px;}
@@ -170,8 +178,16 @@ $typeIcons=['restaurant'=>'🍽️','shop'=>'🛍️','clinic'=>'🏥','professi
 <script>
 function findMob(){
   const m=document.getElementById('mob-inp').value.replace(/\D/g,'');
-  if(m.length<10){alert('Valid 10-digit mobile dalein!');return;}
+  if(m.length<10){toast('Valid 10-digit mobile dalein!', 'err');return;}
   window.location.href='<?= SITE_URL ?>/m/'+m;
+}
+
+function toast(msg, type='info') {
+  const d = document.createElement('div');
+  d.className = 'toast ' + type;
+  d.textContent = msg;
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 3500);
 }
 </script>
 </body>
