@@ -173,7 +173,7 @@ footer{background:#060610;border-top:1px solid var(--border);padding:40px 20px 2
   <div class="mob-search">
     <h3>📱 Kisi ka page mobile number se dhundho</h3>
     <div class="mob-input-row">
-      <input type="tel" class="mob-input" id="mob-find" placeholder="Mobile number dalein..." maxlength="15">
+      <input type="tel" class="mob-input" id="mob-find" placeholder="Mobile number dalein..." maxlength="10" oninput="this.value = this.value.replace(/\D/g, '')">
       <button class="mob-btn" onclick="findByMobile()"><i class="fas fa-search"></i></button>
     </div>
   </div>
@@ -322,7 +322,7 @@ footer{background:#060610;border-top:1px solid var(--border);padding:40px 20px 2
   <div class="modal">
     <h3>📱 Apna Mobile Number</h3>
     <p style="color:var(--muted);font-size:.875rem;margin-bottom:16px;">Mobile number add karo taaki log aapka page number se dhundh sakein!</p>
-    <input type="tel" id="user-mobile" style="width:100%;padding:13px 16px;border-radius:11px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:1rem;font-family:'Poppins',sans-serif;margin-bottom:12px;" placeholder="10-digit mobile number" maxlength="10">
+    <input type="tel" id="user-mobile" style="width:100%;padding:13px 16px;border-radius:11px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:1rem;font-family:'Poppins',sans-serif;margin-bottom:12px;" placeholder="10-digit mobile number" maxlength="10" oninput="this.value = this.value.replace(/\D/g, '')">
     <button onclick="proceedGeneration()" style="width:100%;padding:14px;border-radius:11px;background:var(--p);color:#fff;font-weight:700;font-size:.95rem;border:none;cursor:pointer;">
       <i class="fas fa-magic"></i> Generate Karo — ₹9
     </button>
