@@ -167,7 +167,7 @@ nav{background:rgba(10,10,20,.97);border-bottom:1px solid var(--border);padding:
     <div id="gen-status-text" style="margin-top:10px;color:#fff;font-size:.95rem;line-height:1.4;">AI page ban raha hai...</div>
   </div>
 
-  <input type="tel" id="mob-inp" class="inp" placeholder="📱 Mobile number (optional — log number se dhundh sakenge)" maxlength="10" style="display:none;">
+  <input type="tel" id="mob-inp" class="inp" placeholder="📱 Mobile number (optional — log number se dhundh sakenge)" maxlength="10" style="display:none;" oninput="this.value = this.value.replace(/\D/g, '')">
   <button class="gen-btn" id="gen-btn" onclick="generate()"><i class="fas fa-magic"></i> AI se Page Banao — ₹9</button>
 
   <!-- My Pages -->
