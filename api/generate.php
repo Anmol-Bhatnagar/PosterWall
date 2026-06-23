@@ -70,23 +70,28 @@ do {
     $exists = $db->query("SELECT id FROM pages WHERE token='$token'")->num_rows;
 } while ($exists > 0);
 
-$mobVal  = $mobile ? "'{$mobile}'" : 'NULL';
-$bizN    = $db->real_escape_string($bizName);
-$bizT    = $db->real_escape_string($bizType);
-$html    = $db->real_escape_string($htmlPage);
-$metaD   = $db->real_escape_string(substr($info['description'] ?? '', 0, 300));
-$phone   = $db->real_escape_string($info['phone']    ?? '');
-$wa      = $db->real_escape_string($info['whatsapp'] ?? $info['phone'] ?? '');
-$addr    = $db->real_escape_string($info['address']  ?? '');
+$description = substr($info['description'] ?? '', 0, 300);
+$phoneVal    = $info['phone'] ?? '';
+$waVal       = $info['whatsapp'] ?? $info['phone'] ?? '';
+$addrVal     = $info['address'] ?? '';
 
 if ($regenToken) {
-    // Update existing page
-    $db->query("UPDATE pages SET html_content='$html', business_name='$bizN', business_type='$bizT', meta_desc='$metaD', phone_no='$phone', whatsapp_no='$wa', address='$addr', updated_at=NOW() WHERE token='$regenToken' AND user_id=$uid");
+    // Update existing page using prepared statements
+    $stmt = $db->prepare("UPDATE pages SET html_content=?, business_name=?, business_type=?, meta_desc=?, phone_no=?, whatsapp_no=?, address=?, updated_at=NOW() WHERE token=? AND user_id=?");
+    $stmt->bind_param("ssssssssi", $htmlPage, $bizName, $bizType, $description, $phoneVal, $waVal, $addrVal, $regenToken, $uid);
+    $stmt->execute();
     $token = $regenToken;
 } else {
-    // Insert new page
-    $db->query("INSERT INTO pages (user_id,token,mobile,business_type,business_name,html_content,meta_title,meta_desc,phone_no,whatsapp_no,address) VALUES ($uid,'$token',$mobVal,'$bizT','$bizN','$html','$bizN','$metaD','$phone','$wa','$addr')");
-    if ($mobile) $db->query("UPDATE users SET mobile='$mobile' WHERE id=$uid");
+    // Insert new page using prepared statements
+    $mobVal = $mobile ?: null;
+    $stmt = $db->prepare("INSERT INTO pages (user_id, token, mobile, business_type, business_name, html_content, meta_title, meta_desc, phone_no, whatsapp_no, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssssssss", $uid, $token, $mobVal, $bizType, $bizName, $htmlPage, $bizName, $description, $phoneVal, $waVal, $addrVal);
+    $stmt->execute();
+    if ($mobile) {
+        $stmt_user = $db->prepare("UPDATE users SET mobile=? WHERE id=?");
+        $stmt_user->bind_param("si", $mobile, $uid);
+        $stmt_user->execute();
+    }
 }
 
 // Deduct ₹9 from wallet
