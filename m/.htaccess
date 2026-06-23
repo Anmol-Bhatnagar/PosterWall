@@ -1,0 +1,6 @@
+Options +FollowSymLinks
+RewriteEngine On
+RewriteBase /m/
+
+# Rewrite /m/NUMBER to /m/index.php?mob=NUMBER
+RewriteRule ^([0-9]{10,15})/?$ index.php?mob=$1 [L,QSA]

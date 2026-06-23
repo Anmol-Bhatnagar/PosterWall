@@ -1,0 +1,49 @@
+# Environment files (DO NOT commit)
+.env
+.env.local
+.env.*.local
+config.local.php
+
+# OS & IDE files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+*.log
+/var/log/
+error_log
+
+# Cache & temp files
+/tmp/
+*.tmp
+.cache/
+
+# Backups
+*.bak
+*.backup
+*.sql
+*.sql.gz
+
+# Dependencies (if using composer)
+vendor/
+composer.lock
+
+# Session files
+/tmp/posterwall-sessions/
+session_data/
+
+# Build & dist
+dist/
+build/
+node_modules/
+
+# Test files
+test.php
+debug.php
+phpinfo.php
