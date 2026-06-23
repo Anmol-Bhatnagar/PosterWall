@@ -100,7 +100,7 @@ $typeIcons=['restaurant'=>'🍽️','shop'=>'🛍️','clinic'=>'🏥','professi
   <h1>Mobile se Page Dhundo</h1>
   <p>Mobile number dalein — us number ke saare digital pages dikhenge</p>
   <div class="search-box">
-    <input type="tel" class="search-inp" id="mob-inp" placeholder="Mobile number dalein..." value="<?= htmlspecialchars($mobile) ?>" maxlength="15" onkeypress="if(event.key==='Enter')findMob()">
+    <input type="tel" class="search-inp" id="mob-inp" placeholder="Mobile number dalein..." value="<?= htmlspecialchars($mobile) ?>" maxlength="10" oninput="this.value = this.value.replace(/\D/g, '')" onkeypress="if(event.key==='Enter')findMob()">
     <button class="search-btn" onclick="findMob()"><i class="fas fa-search"></i></button>
   </div>
 </div>
