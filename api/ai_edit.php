@@ -41,10 +41,17 @@ if ($action === 'preview') {
             "\n\n---\n\nPlease make the following changes:\n" . $prompt
         ],
     ];
+    // Determine target model based on provider
+    $provider = strtolower(AI_PROVIDER);
+    if ($provider === 'groq') {
+        $model = GROQ_HTML_MODEL;
+    } else {
+        $model = OR_HTML_MODEL;
+    }
 
-    $modifiedHtml = callOpenRouter($messages, OR_HTML_MODEL, 8000);
+    $modifiedHtml = callAIModel($messages, $model, 8000);
 
-    if (!$modifiedHtml || str_starts_with($modifiedHtml, 'openrouter_error:')) {
+    if (!$modifiedHtml || str_starts_with($modifiedHtml, 'openrouter_error:') || str_starts_with($modifiedHtml, 'groq_error:')) {
         echo json_encode(['error' => 'ai_failed', 'detail' => $modifiedHtml]); exit;
     }
 

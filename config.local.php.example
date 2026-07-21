@@ -17,6 +17,18 @@ return [
     // Debug mode
     'DEBUG_MODE' => true,
 
+    // AI Provider: 'groq' or 'openrouter'
+    'AI_PROVIDER' => 'openrouter',
+
+    // Groq Configuration
+    'GROQ_API_KEY' => '',
+    'GROQ_API_URL' => 'https://api.groq.com/openai/v1/chat/completions',
+    'GROQ_HTML_MODEL' => 'llama-3.3-70b-versatile',
+
+    // OpenRouter Overrides (defaulting to free models)
+    'OR_HTML_MODEL' => 'meta-llama/llama-3.3-70b-instruct:free',
+    'OR_FALLBACK_HTML' => 'meta-llama/llama-3.1-8b-instruct:free',
+
     // Optionally override Razorpay / API keys for test mode
     // 'RZP_KEY_ID' => 'rzp_test_xxx',
     // 'RZP_KEY_SECRET' => 'xxx',

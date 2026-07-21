@@ -106,19 +106,28 @@ defineConfig('SITE_URL',     env('SITE_URL', detectSiteUrl()));
 defineConfig('SUPPORT_EMAIL',env('SUPPORT_EMAIL', 'support@posterwall.in'));
 defineConfig('YEAR',         env('YEAR', '2025'));
 
-// ── OpenRouter AI (Vision + HTML Generation) ──────────────────
-// ⚠️  IMPORTANT: Set these in .env file, never hardcode in production!
-defineConfig('OR_API_KEY',    env('OR_API_KEY', ''));
-defineConfig('OR_API_URL',    env('OR_API_URL', 'https://openrouter.ai/api/v1/chat/completions'));
-defineConfig('OR_SITE_URL',   env('OR_SITE_URL', SITE_URL));
-defineConfig('OR_SITE_NAME',  env('OR_SITE_NAME', SITE_NAME));
+// ── AI Configuration (Vision & HTML Generation) ───────────────
+// ⚠️ IMPORTANT: Set these in .env file, never hardcode in production!
+defineConfig('AI_PROVIDER',       env('AI_PROVIDER', 'openrouter'));
 
-// Vision model (reads photos) — cheap + accurate
+// OpenRouter Configuration
+defineConfig('OR_API_KEY',        env('OR_API_KEY', ''));
+defineConfig('OR_API_URL',        env('OR_API_URL', 'https://openrouter.ai/api/v1/chat/completions'));
+defineConfig('OR_SITE_URL',       env('OR_SITE_URL', SITE_URL));
+defineConfig('OR_SITE_NAME',      env('OR_SITE_NAME', SITE_NAME));
+
+// Groq Configuration
+defineConfig('GROQ_API_KEY',      env('GROQ_API_KEY', ''));
+defineConfig('GROQ_API_URL',      env('GROQ_API_URL', 'https://api.groq.com/openai/v1/chat/completions'));
+defineConfig('GROQ_HTML_MODEL',   env('GROQ_HTML_MODEL', 'llama-3.3-70b-versatile'));
+
+// Vision model (reads photos) — cheap + accurate + free tier
 defineConfig('OR_VISION_MODEL',   env('OR_VISION_MODEL', 'google/gemini-2.0-flash-exp:free'));
 defineConfig('OR_FALLBACK_VISION',env('OR_FALLBACK_VISION', 'google/gemini-flash-1.5'));
-// HTML generation model (creates beautiful pages)
-defineConfig('OR_HTML_MODEL',     env('OR_HTML_MODEL', 'anthropic/claude-sonnet-4-5'));
-defineConfig('OR_FALLBACK_HTML',  env('OR_FALLBACK_HTML', 'x-ai/grok-3-mini-beta'));
+
+// HTML generation model (FREE models only)
+defineConfig('OR_HTML_MODEL',     env('OR_HTML_MODEL', 'meta-llama/llama-3.3-70b-instruct:free'));
+defineConfig('OR_FALLBACK_HTML',  env('OR_FALLBACK_HTML', 'meta-llama/llama-3.1-8b-instruct:free'));
 defineConfig('OR_MAX_TOKENS',     env('OR_MAX_TOKENS', 4096));
 
 // ── Razorpay ──────────────────────────────────────────────────
@@ -328,6 +337,145 @@ function callOpenRouter(array $messages, string $model, int $maxTokens = 4096): 
     }
 
     return 'openrouter_response: ' . json_encode($data);
+}
+
+// ── Generic AI Call (Supports OpenRouter Free & Groq) ─────────
+function callAIModel(array $messages, string $model, int $maxTokens = 4096): ?string {
+    $provider = strtolower(AI_PROVIDER);
+    
+    // Auto-fallback routing if provider key is missing
+    if ($provider === 'groq' && empty(GROQ_API_KEY) && !empty(OR_API_KEY)) {
+        $provider = 'openrouter';
+        $model = OR_HTML_MODEL;
+    } elseif ($provider === 'openrouter' && empty(OR_API_KEY) && !empty(GROQ_API_KEY)) {
+        $provider = 'groq';
+        $model = GROQ_HTML_MODEL;
+    }
+
+    if ($provider === 'groq') {
+        if (empty(GROQ_API_KEY)) {
+            return 'groq_error: GROQ_API_KEY is not configured';
+        }
+        $url = GROQ_API_URL;
+        $apiKey = GROQ_API_KEY;
+        $headers = [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey,
+        ];
+    } else {
+        if (empty(OR_API_KEY)) {
+            return 'openrouter_error: OR_API_KEY is not configured';
+        }
+        $url = OR_API_URL;
+        $apiKey = OR_API_KEY;
+        $headers = [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey,
+            'HTTP-Referer: ' . OR_SITE_URL,
+            'X-Title: ' . OR_SITE_NAME,
+        ];
+    }
+
+    $payload = [
+        'model'       => $model,
+        'max_tokens'  => $maxTokens,
+        'messages'    => $messages,
+        'temperature' => 0.7,
+    ];
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_TIMEOUT        => 90,
+        CURLOPT_HTTPHEADER     => $headers,
+        CURLOPT_POSTFIELDS => json_encode($payload),
+    ]);
+
+    $res  = curl_exec($ch);
+    $err  = curl_error($ch);
+    if (PHP_VERSION_ID < 80500) {
+        curl_close($ch);
+    }
+
+    if ($err) {
+        return $provider . '_error: ' . $err;
+    }
+
+    $data = json_decode($res, true);
+    if (!$data) {
+        return $provider . '_response: ' . $res;
+    }
+
+    if (isset($data['error'])) {
+        return $provider . '_error: ' . json_encode($data['error']);
+    }
+
+    if (isset($data['choices'][0]['message']['content'])) {
+        return $data['choices'][0]['message']['content'];
+    }
+
+    if (isset($data['choices'][0]['text'])) {
+        return $data['choices'][0]['text'];
+    }
+
+    return $provider . '_response: ' . json_encode($data);
+}
+
+// ── Generic Structural HTML Layout Templates (Vague & Generic) 
+function getHTMLTemplates(): array {
+    return [
+        [
+            'id' => 1,
+            'name' => 'Minimalist Split-Pane Layout',
+            'structure' => 'Use a modern split layout (two columns on desktop, collapsing to a single column on mobile). The left column contains the prominent business name, logo space, tagline, a brief and engaging "about us" paragraph, and all primary call-to-action buttons (Call, WhatsApp, Email, and Website) as distinct blocks. The right column displays the list of services or menu categories with prices. The bottom features a simple centered copyright and branding footer.'
+        ],
+        [
+            'id' => 2,
+            'name' => 'Stacked Hero Banner + Feature Cards',
+            'structure' => 'Start with a bold centered hero section featuring a large title and subtitle. Below it, list the business offerings in a structured grid of visual cards (each card represents a service or item with details and price). Place secondary details (timings, location link, and support email) inside a clean, modern card grid section at the bottom, just above the required branding.'
+        ],
+        [
+            'id' => 3,
+            'name' => 'Multi-Tabbed Navigation Interface',
+            'structure' => 'Implement a modern header with the business name and tagline. Below the header, build a clean tab bar (Overview, Services/Menu, Hours & Contact). Use lightweight, simple inline CSS/JavaScript to show/hide the corresponding sections when a tab is clicked. This creates a compact, web-app feel optimized for mobile devices.'
+        ],
+        [
+            'id' => 4,
+            'name' => 'Alternating Row Blocks',
+            'structure' => 'Design the page as a series of alternating full-width block sections. Block 1: Clean hero banner. Block 2: Short about text on one side and key specialties highlighted in small bullet blocks on the other. Block 3: A cleanly aligned service/menu catalog. Block 4: A highlighted call-to-action band with large text and direct contact links.'
+        ],
+        [
+            'id' => 5,
+            'name' => 'Sidebar-Navigation Layout',
+            'structure' => 'Create a sidebar navigation layout on desktop (which collapses to a sticky top navigation bar on mobile). The main content flows vertically with clear section anchor points for each menu or service category, ending with a detailed business card-style contact container.'
+        ],
+        [
+            'id' => 6,
+            'name' => 'Masonry Grid with Pill Badges',
+            'structure' => 'Provide a centered layout header, followed by a masonry or staggered card grid showcasing offerings. Each card should represent a service or menu item, using small tag/badge elements (like pill-shaped borders) to display categories, special features, or prices. Ends with a large centered contact banner.'
+        ],
+        [
+            'id' => 7,
+            'name' => 'Bold Typographic Minimalist Layout',
+            'structure' => 'Create an editorial style page focusing entirely on bold, high-contrast, elegant typography and whitespace. Use simple, thin line separators instead of card boxes or shadows. Content (about, menu/services, timings, contacts) should be presented as spacious text columns and tables, giving a premium and minimal aesthetic.'
+        ],
+        [
+            'id' => 8,
+            'name' => 'Sequential Process / Process Flow Layout',
+            'structure' => 'Structure the main content section as a step-by-step or chronological process layout (e.g., Step 1, Step 2, Step 3) showing how the business serves its clients. This is followed by a clean table displaying services/offerings and their pricing, ending with call/whatsapp quick actions.'
+        ],
+        [
+            'id' => 9,
+            'name' => 'Classic Mobile Link-in-Bio',
+            'structure' => 'Optimize the entire layout as a narrow, single-column page centered on the screen (resembling a mobile app or link-in-bio page). Use a prominent circular avatar or logo space at the top, a title and bio text, followed by a vertical stack of high-contrast action buttons for calling, WhatsApping, visiting the address, and viewing specific services.'
+        ],
+        [
+            'id' => 10,
+            'name' => 'Modern Timeline Stack',
+            'structure' => 'Design a layout where offerings, specialties, and business info are displayed along a central vertical timeline stack. Each node of the timeline represents a key category or milestone of services with descriptions and price details. Ends with a full-width location and contact panel.'
+        ]
+    ];
 }
 
 function extractJsonFromText(string $text): ?array {
@@ -552,6 +700,12 @@ function generateHTMLPage(array $info, string $base64Image = '', string $mimeTyp
     $info = normalizeBusinessInfo($info);
     $infoJson = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
+    // Get structural templates and select a random one
+    $templates = getHTMLTemplates();
+    $randomTemplate = $templates[array_rand($templates)];
+    $templateName = $randomTemplate['name'];
+    $templateStructure = $randomTemplate['structure'];
+
     $imageContent = '';
     if ($base64Image) {
         $imageContent = "\n\nI'm also providing the original photo for visual reference and color inspiration.";
@@ -584,6 +738,12 @@ REQUIREMENTS:
 5. Mobile-first, fully responsive, and clean on small screens.
 6. Elegant spacing, clear typography, and polished visual hierarchy.
 7. Professional color scheme based on business_type and color_theme.
+8. You MUST strictly layout the page using this structural layout template:
+   ---
+   TEMPLATE TYPE: $templateName
+   STRUCTURE LAYOUT: $templateStructure
+   ---
+   Do NOT deviate from this layout structure. Let the color palette, fonts, and style details be guided by the business type and photo, but stick strictly to this structure.
 
 DESIGN GUIDELINES BY BUSINESS TYPE:
 - restaurant/food: warm, appetizing, rich oranges/reds, elegant food visuals.
@@ -635,13 +795,28 @@ If contact details are missing, keep the page polished and do not show empty fie
         ['role' => 'user',   'content' => $userContent]
     ];
 
-    // Use Claude for best HTML generation
-    $result = callOpenRouter($messages, OR_HTML_MODEL, OR_MAX_TOKENS);
+    // Determine target model based on provider
+    $provider = strtolower(AI_PROVIDER);
+    if ($provider === 'groq') {
+        $model = GROQ_HTML_MODEL;
+    } else {
+        $model = OR_HTML_MODEL;
+    }
 
-    // Fallback to Grok
+    // Call callAIModel
+    $result = callAIModel($messages, $model, OR_MAX_TOKENS);
+
+    // Fallback to secondary model if first try fails or returns poor HTML
     if (!$result || strlen($result) < 500 || stripos($result, '<!DOCTYPE html') === false) {
+        // Strip image_url context if we fallback to openrouter fallback or basic models to save context/prevent vision failures
         $messages[1]['content'] = [['type' => 'text', 'text' => end($userContent)['text']]];
-        $result = callOpenRouter($messages, OR_FALLBACK_HTML, OR_MAX_TOKENS);
+        
+        if ($provider === 'groq') {
+            $fallbackModel = OR_HTML_MODEL;
+        } else {
+            $fallbackModel = OR_FALLBACK_HTML;
+        }
+        $result = callAIModel($messages, $fallbackModel, OR_MAX_TOKENS);
     }
 
     if ($result && stripos($result, '<!DOCTYPE html') === false) {
