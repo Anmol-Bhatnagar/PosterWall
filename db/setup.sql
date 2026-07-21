@@ -11,16 +11,20 @@ USE posterwall2;
 
 -- Users
 CREATE TABLE IF NOT EXISTS users (
-    id         INT AUTO_INCREMENT PRIMARY KEY,
-    name       VARCHAR(100) NOT NULL,
-    email      VARCHAR(100) UNIQUE NOT NULL,
-    mobile     VARCHAR(15)  DEFAULT NULL,
-    password   VARCHAR(255) DEFAULT NULL,
-    google_id  VARCHAR(100) DEFAULT NULL,
-    avatar     VARCHAR(255) DEFAULT NULL,
-    role       ENUM('user','admin') DEFAULT 'user',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    name          VARCHAR(100) NOT NULL,
+    email         VARCHAR(100) UNIQUE NOT NULL,
+    mobile        VARCHAR(15)  DEFAULT NULL,
+    password      VARCHAR(255) DEFAULT NULL,
+    google_id     VARCHAR(100) DEFAULT NULL,
+    avatar        VARCHAR(255) DEFAULT NULL,
+    role          ENUM('user','admin') DEFAULT 'user',
+    is_power_user TINYINT(1) DEFAULT 0,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Migration: add is_power_user to existing installs
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_power_user TINYINT(1) DEFAULT 0;
 
 -- Wallets
 CREATE TABLE IF NOT EXISTS wallets (
@@ -55,6 +59,7 @@ CREATE TABLE IF NOT EXISTS pages (
     business_name VARCHAR(200) DEFAULT NULL,
     photo_url     VARCHAR(500) DEFAULT NULL,
     html_content  LONGTEXT NOT NULL,
+    menu_items    LONGTEXT NULL,
     meta_title    VARCHAR(200) DEFAULT NULL,
     meta_desc     VARCHAR(300) DEFAULT NULL,
     theme         VARCHAR(50)  DEFAULT 'auto',

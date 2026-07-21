@@ -106,11 +106,12 @@ tr:hover td{background:rgba(255,107,0,.02);}
   <div class="sb-sec">Manage</div>
   <a href="users.php" class="sb-link"><i class="fas fa-users"></i><span>Users</span></a>
   <a href="pages.php" class="sb-link"><i class="fas fa-file-alt"></i><span>Pages</span></a>
+  <a href="wallet.php" class="sb-link"><i class="fas fa-wallet"></i><span>Manage Funds</span></a>
   <div class="sb-sec">Site</div>
   <a href="<?= siteUrl('') ?>" target="_blank" class="sb-link"><i class="fas fa-globe"></i><span>View Site</span></a>
   <a href="<?= siteUrl('dashboard/') ?>" class="sb-link"><i class="fas fa-home"></i><span>Dashboard</span></a>
   <a href="<?= siteUrl('auth/logout.php') ?>" class="sb-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
-  <div class="sb-foot"><p>Tech Eagles<br>Mahakumbrix Innovation<br>PosterWall v2.0</p></div>
+  <div class="sb-foot"><p><strong style="color:var(--p);">TechEagles</strong><br>Mahakumbrix Innovation<br>PosterWall v2.0</p></div>
 </aside>
 <div class="main">
   <div class="tb">

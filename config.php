@@ -5,9 +5,63 @@
 // ============================================================
 session_start();
 
+// ── Load .env file for production deployment ──────────────
+function loadEnvFile(string $path = ''): void {
+    if (empty($path)) {
+        $path = __DIR__ . '/.env';
+    }
+    
+    if (!file_exists($path)) {
+        return; // .env is optional; use system environment variables
+    }
+    
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        // Skip comments
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        
+        // Parse KEY=VALUE
+        if (strpos($line, '=') === false) {
+            continue;
+        }
+        
+        list($key, $value) = explode('=', $line, 2);
+        $key = trim($key);
+        $value = trim($value);
+        
+        // Remove quotes if present
+        if ((str_starts_with($value, '"') && str_ends_with($value, '"')) ||
+            (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
+            $value = substr($value, 1, -1);
+        }
+        
+        // Only set if not already set in system environment
+        if (!getenv($key)) {
+            putenv("$key=$value");
+            $_ENV[$key] = $value;
+        }
+    }
+}
+
+// Load .env file
+loadEnvFile();
+
 function env(string $key, $default = null) {
+    // Check system environment first
     $value = getenv($key);
-    return $value !== false ? $value : $default;
+    if ($value !== false) {
+        return $value;
+    }
+    
+    // Check $_ENV array
+    if (isset($_ENV[$key])) {
+        return $_ENV[$key];
+    }
+    
+    // Return default
+    return $default;
 }
 
 function isLocalHost(): bool {
@@ -49,30 +103,33 @@ defineConfig('SITE_TAGLINE', env('SITE_TAGLINE', 'Apna Design. Apna Brand. Apni 
 defineConfig('COMPANY',      env('COMPANY', 'Tech Eagles'));
 defineConfig('PARENT',       env('PARENT', 'Mahakumbrix Innovation'));
 defineConfig('SITE_URL',     env('SITE_URL', detectSiteUrl()));
-defineConfig('SUPPORT_EMAIL',env('SUPPORT_EMAIL', 'posterwall.in@gmail.com'));
+defineConfig('SUPPORT_EMAIL',env('SUPPORT_EMAIL', 'support@posterwall.in'));
 defineConfig('YEAR',         env('YEAR', '2025'));
 
 // ── OpenRouter AI (Vision + HTML Generation) ──────────────────
-defineConfig('OR_API_KEY',    env('OR_API_KEY', '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'));
+// ⚠️  IMPORTANT: Set these in .env file, never hardcode in production!
+defineConfig('OR_API_KEY',    env('OR_API_KEY', ''));
 defineConfig('OR_API_URL',    env('OR_API_URL', 'https://openrouter.ai/api/v1/chat/completions'));
 defineConfig('OR_SITE_URL',   env('OR_SITE_URL', SITE_URL));
 defineConfig('OR_SITE_NAME',  env('OR_SITE_NAME', SITE_NAME));
 
 // Vision model (reads photos) — cheap + accurate
-defineConfig('OR_VISION_MODEL',   env('OR_VISION_MODEL', 'google/gemini-2.0-flash-exp:free'));   // FREE vision!
-defineConfig('OR_FALLBACK_VISION',env('OR_FALLBACK_VISION', 'google/gemini-flash-1.5'));            // fallback
+defineConfig('OR_VISION_MODEL',   env('OR_VISION_MODEL', 'google/gemini-2.0-flash-exp:free'));
+defineConfig('OR_FALLBACK_VISION',env('OR_FALLBACK_VISION', 'google/gemini-flash-1.5'));
 // HTML generation model (creates beautiful pages)
-defineConfig('OR_HTML_MODEL',     env('OR_HTML_MODEL', 'google/gemini-2.0-flash-exp:free'));   // FREE HTML generator
-defineConfig('OR_FALLBACK_HTML',  env('OR_FALLBACK_HTML', 'meta-llama/llama-3.3-70b-instruct:free')); // FREE fallback
+defineConfig('OR_HTML_MODEL',     env('OR_HTML_MODEL', 'anthropic/claude-sonnet-4-5'));
+defineConfig('OR_FALLBACK_HTML',  env('OR_FALLBACK_HTML', 'x-ai/grok-3-mini-beta'));
 defineConfig('OR_MAX_TOKENS',     env('OR_MAX_TOKENS', 4096));
 
 // ── Razorpay ──────────────────────────────────────────────────
-defineConfig('RZP_KEY_ID',     env('RZP_KEY_ID', 'rzp_live_SZr2OCk4WGA9WD'));
-defineConfig('RZP_KEY_SECRET', env('RZP_KEY_SECRET', 'vrtZ7PgUA4GmdJTKOpV71Pv1'));
+// ⚠️  IMPORTANT: Set these in .env file, never hardcode in production!
+defineConfig('RZP_KEY_ID',     env('RZP_KEY_ID', ''));
+defineConfig('RZP_KEY_SECRET', env('RZP_KEY_SECRET', ''));
 
-// ── Google OAuth (New credentials) ────────────────────────────
-defineConfig('G_CLIENT_ID',     env('G_CLIENT_ID', '891096924455-91lc7nrhadhv6ag1ch9nneprcflmdrig.apps.googleusercontent.com'));
-defineConfig('G_CLIENT_SECRET', env('G_CLIENT_SECRET', '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'));
+// ── Google OAuth ──────────────────────────────────────────────
+// ⚠️  IMPORTANT: Set these in .env file, never hardcode in production!
+defineConfig('G_CLIENT_ID',     env('G_CLIENT_ID', ''));
+defineConfig('G_CLIENT_SECRET', env('G_CLIENT_SECRET', ''));
 defineConfig('G_REDIRECT',      env('G_REDIRECT', SITE_URL . '/auth/callback.php'));
 
 // ── Pricing ──────────────────────────────────────────────────
@@ -81,18 +138,64 @@ defineConfig('PAGE_COST', env('PAGE_COST', 9)); // ₹9 per page generation
 // ── Database ──────────────────────────────────────────────────
 defineConfig('DB_HOST', env('DB_HOST', 'localhost'));
 defineConfig('DB_USER', env('DB_USER', 'root'));
-defineConfig('DB_PASS', env('DB_PASS', 'YourStrongPassword'));
+defineConfig('DB_PASS', env('DB_PASS', ''));
 defineConfig('DB_NAME', env('DB_NAME', 'posterwall2'));
 
 // ── DB Connect ────────────────────────────────────────────────
 function db() {
     static $conn = null;
     if ($conn === null) {
-        $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-        if ($conn->connect_error) die(json_encode(['error' => 'DB connection failed: ' . $conn->connect_error]));
+            mysqli_report(MYSQLI_REPORT_OFF);
+        try {
+            $conn = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        } catch (mysqli_sql_exception $ex) {
+            $error_msg = 'Database connection failed: ' . $ex->getMessage();
+            error_log($error_msg);
+            if (DEBUG_MODE) {
+                die(json_encode(['error' => $error_msg]));
+            }
+            http_response_code(503);
+            die(json_encode(['error' => 'Database connection failed. Please verify your DB credentials and configuration.']));
+        }
+
+        if ($conn->connect_error) {
+            $error_msg = 'Database connection failed: ' . $conn->connect_error;
+            error_log($error_msg);
+            if (DEBUG_MODE) {
+                die(json_encode(['error' => $error_msg]));
+            }
+            http_response_code(503);
+            die(json_encode(['error' => 'Database connection failed. Please verify your DB credentials and configuration.']));
+        }
+
         $conn->set_charset('utf8mb4');
+        $conn->query("SET sql_mode='STRICT_TRANS_TABLES'");
+        ensurePagesMenuColumn($conn);
+        ensureUserPowerColumn($conn);
     }
     return $conn;
+}
+
+function ensurePagesMenuColumn(mysqli $conn): void {
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    $result = $conn->query("SHOW COLUMNS FROM pages LIKE 'menu_items'");
+    if ($result && $result->num_rows === 0) {
+        $conn->query("ALTER TABLE pages ADD COLUMN menu_items LONGTEXT NULL AFTER html_content");
+    }
+}
+
+function ensureUserPowerColumn(mysqli $conn): void {
+    static $checked = false;
+    if ($checked) return;
+    $checked = true;
+    $result = $conn->query("SHOW COLUMNS FROM users LIKE 'is_power_user'");
+    if ($result && $result->num_rows === 0) {
+        $conn->query("ALTER TABLE users ADD COLUMN is_power_user TINYINT(1) NOT NULL DEFAULT 0");
+    }
 }
 
 // ── Auth helpers ──────────────────────────────────────────────
@@ -136,6 +239,12 @@ function wallet() {
     $r  = db()->query("SELECT balance FROM wallets WHERE user_id=$id")->fetch_assoc();
     return $r ? (float)$r['balance'] : 0;
 }
+function isPowerUser(?array $u = null): bool {
+    if ($u === null) $u = me();
+    if (!$u) return false;
+    if (($u['role'] ?? '') === 'admin') return true;
+    return !empty($u['is_power_user']);
+}
 
 // ── OpenRouter API Call (Text + Vision) ───────────────────────
 function callOpenRouter(array $messages, string $model, int $maxTokens = 4096): ?string {
@@ -166,7 +275,9 @@ function callOpenRouter(array $messages, string $model, int $maxTokens = 4096): 
 
     $res  = curl_exec($ch);
     $err  = curl_error($ch);
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+        curl_close($ch);
+    }
 
     if ($err) {
         return 'openrouter_error: ' . $err;
@@ -345,7 +456,45 @@ function normalizeBusinessInfo(array $info): array {
     return $clean;
 }
 
-// ── Vision: Extract business info from image ──────────────────
+function renderMenuHtml(array $menuItems): string {
+    if (empty($menuItems)) {
+        return '';
+    }
+
+    $html = '<section id="pw-updated-menu" style="margin:0 auto 24px;max-width:1100px;padding:24px 18px;border-radius:26px;background:rgba(255,255,255,.92);box-shadow:0 32px 90px rgba(0,0,0,.08);font-family:Poppins,sans-serif;color:#111;">';
+    $html .= '<div style="text-align:center;margin-bottom:18px;"><div style="font-family:Baloo 2,cursive;font-size:1.95rem;font-weight:800;color:#FF6B00;">📋 Updated Menu</div><p style="margin:10px auto 0;max-width:700px;color:#4b5563;font-size:0.95rem;">Yeh menu aapne manually update kiya hai. Agar yahan kuch hai, toh yeh section public page par dikhega.</p></div>';
+
+    foreach ($menuItems as $section) {
+        $category = trim($section['category'] ?? 'Menu');
+        $items = (array) ($section['items'] ?? []);
+        if (empty($items)) {
+            continue;
+        }
+
+        $html .= '<div style="margin-bottom:20px;">';
+        $html .= '<div style="font-size:1.15rem;font-weight:700;color:#1f2937;margin-bottom:12px;">' . htmlspecialchars($category, ENT_QUOTES, 'UTF-8') . '</div>';
+        $html .= '<div style="display:grid;gap:10px;">';
+
+        foreach ($items as $item) {
+            $name = trim($item['name'] ?? '');
+            $price = trim((string) ($item['price'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+            $priceHtml = $price !== '' ? htmlspecialchars($price, ENT_QUOTES, 'UTF-8') : '&nbsp;';
+            $html .= '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.98);border:1px solid rgba(226,232,240,.9);box-shadow:0 16px 30px rgba(15,23,42,.05);">';
+            $html .= '<span style="font-weight:600;color:#111;">' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</span>';
+            $html .= '<span style="font-weight:700;color:#ef6c00;">' . $priceHtml . '</span>';
+            $html .= '</div>';
+        }
+
+        $html .= '</div></div>';
+    }
+
+    $html .= '</section>';
+    return $html;
+}
+
 function extractFromImage(string $base64Image, string $mimeType): ?string {
     $messages = [[
         'role'    => 'user',
@@ -398,7 +547,7 @@ If a field is not visible, use null. Do not invent data. Return valid JSON only.
     return $result;
 }
 
-// ── HTML Generation: Create beautiful page from business info ──
+// ── HTML Generation: Create beautiful page from business info ─────────────────────────────────
 function generateHTMLPage(array $info, string $base64Image = '', string $mimeType = ''): ?string {
     $info = normalizeBusinessInfo($info);
     $infoJson = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
@@ -408,7 +557,7 @@ function generateHTMLPage(array $info, string $base64Image = '', string $mimeTyp
         $imageContent = "\n\nI'm also providing the original photo for visual reference and color inspiration.";
     }
 
-    $systemPrompt = 'You are a world-class web designer who creates STUNNING, PRODUCTION-READY HTML pages for Indian businesses. You write complete, beautiful, mobile-first HTML with embedded CSS and JS. Your designs are memorable, professional, and uniquely crafted for each business type. You NEVER use generic templates. Always use modern visual aesthetics: include Google Fonts (like Outfit, Montserrat, Baloo 2, Playfair Display), smooth color gradients, rounded border-radius, clean card layouts with glassmorphism (backdrop-filter: blur), subtle drop shadows, responsive grid/flexbox spacing, and smooth hover animations/micro-interactions. You always return only valid HTML, no markdown, no explanation.';
+    $systemPrompt = 'You are a world-class web designer who creates STUNNING, PRODUCTION-READY HTML pages for Indian businesses. You write complete, beautiful, mobile-first HTML with embedded CSS and JS. Your designs are memorable, professional, and uniquely crafted for each business type. You NEVER use generic templates. You always return only valid HTML, no markdown, no explanation.';
 
     $userContent = [];
 
@@ -454,7 +603,7 @@ MUST INCLUDE WHEN DATA IS AVAILABLE:
 4. CONTACT section with clickable phone, WhatsApp, email, and website.
 5. LOCATION section with address and Google Maps search link.
 6. TIMINGS or working hours.
-7. FOOTER with business name and 'Powered by PosterWall.in'.
+7. A proper closing section after all content.
 
 LINK RULES:
 - Use tel: links only for valid numeric phone numbers.
@@ -468,6 +617,13 @@ QUALITY RULES:
 - Use only the provided business data, and prefer exact text.
 - Do not include any comments, explanations, or markdown.
 - Output must be valid HTML and start with <!DOCTYPE html>.
+- Add 80px of bottom padding to the <body> so content is never hidden behind the fixed share bar.
+
+BRANDING — STRICTLY REQUIRED:
+The last visible section of the page (just before </body>) MUST be a simple, full-width, centered text section that says exactly:
+  Line 1: Created by PosterWall.in  (make PosterWall.in a clickable link to https://posterwall.in)
+  Line 2: A Product of TechEagles | Under Mahakumbrix Innovation
+Style it as plain centered text matching the page design — no card, no box, no shadow, no border-radius. Just clean text at the bottom of the page. Do not add this text anywhere else on the page.
 
 If menu_items are missing but services exist, create a clean service section instead.
 If contact details are missing, keep the page polished and do not show empty fields.

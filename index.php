@@ -1,338 +1,718 @@
-<?php require_once 'config.php'; ?>
+<?php
+require_once 'config.php';
+
+// Auto-redirect logged-in users to dashboard
+if (loggedIn()) {
+    header('Location: ' . siteUrl('dashboard/'));
+    exit;
+}
+
+$tab = $_GET['tab'] ?? 'home';
+$validTabs = ['home','create','search','pricing','about'];
+if (!in_array($tab, $validTabs)) $tab = 'home';
+?>
 <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?php if($tab==='home'): ?>
 <title>PosterWall — Apna Design. Apna Brand. Apni Pehchaan.</title>
 <meta name="description" content="Sirf ₹9 mein apni dukaan, dhaba, clinic ki photo se beautiful digital page banao. QR Code aur mobile number se accessible!">
+<?php elseif($tab==='create'): ?>
+<title>Page Banao — PosterWall</title>
+<?php elseif($tab==='search'): ?>
+<title>Business Dhundo — PosterWall</title>
+<?php elseif($tab==='pricing'): ?>
+<title>Pricing — PosterWall</title>
+<?php else: ?>
+<title>About Us — PosterWall</title>
+<?php endif; ?>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root{--p:#FF6B00;--pd:#e05a00;--a:#FFD700;--bg:#0a0a14;--bg2:#12192b;--card:#1a2540;--text:#f0f0f0;--muted:#8892a4;--border:rgba(255,255,255,0.07);}
+:root{--p:#FF6B00;--pd:#e05a00;--a:#FFD700;--bg:#ffffff;--bg2:#f7f9fc;--card:#ffffff;--text:#1a1a2e;--muted:#6c7b94;--border:rgba(0,0,0,0.08);}
+[data-theme="dark"]{--bg:#0a0e27;--bg2:#111d3a;--card:#1a2d4f;--text:#f0f2f5;--muted:#8892a4;--border:rgba(255,255,255,0.08);}
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .3s ease,color .3s ease;}
 a{text-decoration:none;color:inherit;}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 20px;background:rgba(10,10,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
-.nav-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
-.logo{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;display:flex;align-items:center;gap:6px;}
-.logo span{color:var(--p);}
-.nav-right{display:flex;align-items:center;gap:12px;}
-.nav-btn{padding:8px 18px;border-radius:9px;font-weight:600;font-size:.85rem;background:var(--p);color:#fff;border:none;cursor:pointer;transition:all .2s;}
-.nav-btn.out{background:transparent;border:1px solid var(--border);color:var(--text);}
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 20px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+[data-theme="dark"] nav{background:rgba(10,14,39,.92);}
+.nav-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;}
+.logo{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--p),var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;}
+.logo span{-webkit-text-fill-color:unset;}
 
-/* HERO */
-.hero{min-height:100svh;padding-top:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 20px 60px;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,107,0,.18) 0%,transparent 65%);pointer-events:none;}
+/* Tab bar */
+.nav-tabs{display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.04);border-radius:12px;padding:4px;margin:0 16px;}
+[data-theme="dark"] .nav-tabs{background:rgba(255,255,255,.06);}
+.nav-tab{padding:7px 14px;border-radius:9px;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;border:none;background:none;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{background:#fff;color:var(--p);box-shadow:0 2px 8px rgba(0,0,0,.1);}
+[data-theme="dark"] .nav-tab.active{background:var(--card);color:var(--p);}
 
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,107,0,.12);border:1px solid rgba(255,107,0,.3);color:var(--p);padding:6px 16px;border-radius:100px;font-size:.8rem;font-weight:600;margin-bottom:24px;animation:fadeUp .6s ease;}
-.hero h1{font-family:'Baloo 2',cursive;font-size:clamp(2rem,7vw,4rem);font-weight:800;line-height:1.15;margin-bottom:16px;animation:fadeUp .7s ease;}
+.nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.theme-toggle{width:40px;height:40px;border-radius:10px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .3s;}
+.theme-toggle:hover{background:var(--p);color:white;}
+.nav-btn{padding:9px 18px;border-radius:10px;font-weight:600;font-size:.82rem;background:var(--p);color:#fff;border:none;cursor:pointer;transition:all .3s;box-shadow:0 2px 8px rgba(255,107,0,.2);white-space:nowrap;}
+.nav-btn:hover{background:var(--pd);transform:translateY(-1px);}
+.nav-btn.out{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+.nav-btn.out:hover{background:var(--bg2);border-color:var(--p);color:var(--p);}
+
+/* Mobile nav: hide tab labels on tiny screens */
+@media(max-width:540px){
+  .nav-tab{padding:7px 10px;font-size:.75rem;}
+  .nav-tabs{margin:0 8px;}
+  .nav-btn{padding:8px 12px;font-size:.78rem;}
+}
+
+/* ── PAGE WRAPPER ── */
+.page{display:none;min-height:100svh;}
+.page.active{display:block;}
+
+/* ═══════════════════ HOME PAGE ═══════════════════ */
+.hero{padding-top:60px;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,107,0,.15) 0%,transparent 70%);pointer-events:none;}
+.hero::after{content:'';position:absolute;top:-50%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(79,70,229,.08),transparent);animation:float 20s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(30px);}}
+
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(255,107,0,.12),rgba(255,215,0,.08));border:1px solid rgba(255,107,0,.25);color:var(--p);padding:8px 18px;border-radius:100px;font-size:.8rem;font-weight:600;margin-bottom:24px;animation:slideDown .6s ease;}
+.hero h1{font-family:'Baloo 2',cursive;font-size:clamp(2rem,7vw,4.2rem);font-weight:800;line-height:1.1;margin-bottom:18px;animation:slideDown .7s ease;letter-spacing:-1px;}
 .grad{background:linear-gradient(135deg,var(--p),var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{color:var(--muted);font-size:clamp(.95rem,2.5vw,1.1rem);max-width:540px;line-height:1.8;margin-bottom:36px;animation:fadeUp .8s ease;}
+.hero-sub{color:var(--muted);font-size:clamp(.95rem,2.5vw,1.15rem);max-width:560px;line-height:1.8;margin-bottom:40px;animation:slideDown .8s ease;}
 
-/* UPLOAD BOX */
-.upload-box{background:var(--card);border:2px dashed rgba(255,107,0,.4);border-radius:20px;padding:36px 24px;max-width:500px;width:100%;margin:0 auto 32px;cursor:pointer;transition:all .3s;animation:fadeUp .9s ease;position:relative;overflow:hidden;}
-.upload-box:hover{border-color:var(--p);background:rgba(255,107,0,.06);}
+.upload-box{background:rgba(255,255,255,.6);backdrop-filter:blur(10px);border:2px dashed rgba(255,107,0,.3);border-radius:18px;padding:40px 28px;max-width:500px;width:100%;margin:0 auto 28px;cursor:pointer;transition:all .4s;animation:slideDown .9s ease;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.08);}
+[data-theme="dark"] .upload-box{background:rgba(26,45,79,.4);}
+.upload-box:hover{border-color:var(--p);background:rgba(255,107,0,.08);box-shadow:0 12px 40px rgba(255,107,0,.15);transform:translateY(-4px);}
 .upload-box input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.upload-icon{font-size:3rem;margin-bottom:12px;}
-.upload-title{font-weight:700;font-size:1.1rem;margin-bottom:6px;}
-.upload-sub{color:var(--muted);font-size:.85rem;}
-.upload-preview{display:none;width:100%;border-radius:12px;margin-bottom:12px;max-height:200px;object-fit:cover;}
+.upload-icon{font-size:3.5rem;margin-bottom:14px;animation:bounce 2s ease-in-out infinite;}
+.upload-title{font-weight:700;font-size:1.15rem;margin-bottom:6px;}
+.upload-sub{color:var(--muted);font-size:.88rem;}
+.upload-preview{display:none;width:100%;border-radius:14px;margin-bottom:16px;max-height:220px;object-fit:cover;box-shadow:0 6px 20px rgba(0,0,0,.15);}
 
-.gen-btn{width:100%;max-width:500px;padding:15px;border-radius:12px;background:var(--p);color:#fff;font-weight:700;font-size:1rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .3s;box-shadow:0 6px 24px rgba(255,107,0,.4);animation:fadeUp 1s ease;margin:0 auto;}
-.gen-btn:hover{background:var(--pd);transform:translateY(-2px);}
+.gen-btn{width:100%;max-width:500px;padding:16px;border-radius:12px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-weight:700;font-size:1rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .3s;box-shadow:0 8px 24px rgba(255,107,0,.3);animation:slideDown 1s ease;margin:0 auto;}
+.gen-btn:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(255,107,0,.4);}
 .gen-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-
 .price-tag{display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:var(--muted);font-size:.82rem;}
-.price-tag strong{color:var(--p);}
+.price-tag strong{color:var(--p);font-weight:700;}
 
-/* MOBILE SEARCH */
-.mob-search{max-width:500px;margin:48px auto 0;text-align:center;animation:fadeUp 1.1s ease;}
+.mob-search{max-width:500px;margin:48px auto 0;text-align:center;animation:slideDown 1.1s ease;}
 .mob-search h3{font-family:'Baloo 2',cursive;font-size:1.1rem;margin-bottom:12px;color:var(--muted);}
 .mob-input-row{display:flex;gap:8px;}
-.mob-input{flex:1;padding:13px 16px;border-radius:11px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:1rem;font-family:'Poppins',sans-serif;}
-.mob-input:focus{outline:none;border-color:var(--p);}
-.mob-btn{padding:13px 18px;border-radius:11px;background:var(--card);border:1px solid var(--border);color:var(--p);cursor:pointer;font-size:1rem;}
+.mob-input{flex:1;padding:13px 16px;border-radius:11px;background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);color:var(--text);font-size:1rem;font-family:'Poppins',sans-serif;transition:all .3s;}
+[data-theme="dark"] .mob-input{background:rgba(26,45,79,.4);}
+.mob-input:focus{outline:none;border-color:var(--p);box-shadow:0 0 12px rgba(255,107,0,.2);}
+.mob-btn{padding:13px 18px;border-radius:11px;background:#6366f1;border:none;color:white;cursor:pointer;font-size:1rem;font-weight:600;transition:all .3s;}
+.mob-btn:hover{background:var(--p);}
 
-/* STATS */
-.stats{display:flex;justify-content:center;gap:40px;margin-top:56px;flex-wrap:wrap;animation:fadeUp 1.2s ease;}
+.stats{display:flex;justify-content:center;gap:40px;margin-top:56px;flex-wrap:wrap;animation:slideDown 1.2s ease;}
 .stat-item{text-align:center;}
-.stat-item strong{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:var(--p);display:block;}
-.stat-item span{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.stat-item strong{font-family:'Baloo 2',cursive;font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--p),var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;}
+.stat-item span{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
 
-/* HOW IT WORKS */
+/* Sections */
 .section{padding:72px 20px;}
 .section-inner{max-width:1000px;margin:0 auto;}
 .sec-head{text-align:center;margin-bottom:52px;}
-.sec-head h2{font-family:'Baloo 2',cursive;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;margin-bottom:10px;}
-.sec-head p{color:var(--muted);font-size:.95rem;}
+.sec-head h2{font-family:'Baloo 2',cursive;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;margin-bottom:12px;}
+.sec-head p{color:var(--muted);font-size:.95rem;max-width:500px;margin:0 auto;}
 
-.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
-.step-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 20px;text-align:center;position:relative;overflow:hidden;transition:transform .3s;}
-.step-card:hover{transform:translateY(-4px);}
-.step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--p);}
-.step-num{width:40px;height:40px;background:rgba(255,107,0,.15);border:1px solid rgba(255,107,0,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-weight:800;color:var(--p);}
-.step-icon{font-size:2.4rem;margin-bottom:12px;}
-.step-card h3{font-weight:700;margin-bottom:8px;font-size:1rem;}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;}
+.step-card{background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:16px;padding:32px 24px;text-align:center;position:relative;overflow:hidden;transition:all .3s;}
+[data-theme="dark"] .step-card{background:rgba(26,45,79,.3);}
+.step-card:hover{border-color:var(--p);transform:translateY(-6px);box-shadow:0 12px 40px rgba(255,107,0,.15);}
+.step-num{width:48px;height:48px;background:linear-gradient(135deg,rgba(255,107,0,.15),rgba(255,215,0,.1));border:1.5px solid rgba(255,107,0,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-weight:800;color:var(--p);font-size:1.2rem;}
+.step-icon{font-size:2.6rem;margin-bottom:12px;}
+.step-card h3{font-weight:700;margin-bottom:8px;font-size:1.05rem;}
 .step-card p{color:var(--muted);font-size:.84rem;line-height:1.6;}
 
-/* EXAMPLES */
 .examples-bg{background:var(--bg2);}
-.examples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;}
-.ex-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 14px;text-align:center;transition:all .3s;cursor:pointer;}
-.ex-card:hover{border-color:var(--p);transform:translateY(-3px);}
-.ex-icon{font-size:2.2rem;margin-bottom:10px;}
-.ex-name{font-weight:600;font-size:.88rem;margin-bottom:4px;}
-.ex-desc{color:var(--muted);font-size:.72rem;}
+.examples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
+.ex-card{background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:14px;padding:22px 16px;text-align:center;transition:all .3s;}
+[data-theme="dark"] .ex-card{background:rgba(26,45,79,.3);}
+.ex-card:hover{border-color:var(--p);transform:translateY(-4px);box-shadow:0 8px 24px rgba(255,107,0,.15);}
+.ex-icon{font-size:2.4rem;margin-bottom:12px;}
+.ex-name{font-weight:600;font-size:.9rem;margin-bottom:4px;}
+.ex-desc{color:var(--muted);font-size:.73rem;}
 
-/* PRICING */
-.price-box{max-width:480px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 32px;text-align:center;}
-.price-main{font-family:'Baloo 2',cursive;font-size:4rem;font-weight:800;color:var(--p);margin:16px 0 4px;}
-.price-list{list-style:none;margin:24px 0;text-align:left;}
-.price-list li{padding:10px 0;border-bottom:1px solid var(--border);font-size:.9rem;display:flex;align-items:center;gap:10px;}
-.price-list li::before{content:'✅';flex-shrink:0;}
+/* ═══════════════════ CREATE PAGE ═══════════════════ */
+.create-hero{padding:100px 20px 60px;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;}
+.create-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,107,0,.12) 0%,transparent 65%);pointer-events:none;}
+.create-steps-row{display:flex;gap:8px;justify-content:center;margin-bottom:32px;flex-wrap:wrap;}
+.create-step-pill{display:flex;align-items:center;gap:6px;background:rgba(255,107,0,.08);border:1px solid rgba(255,107,0,.2);border-radius:100px;padding:6px 14px;font-size:.78rem;font-weight:600;color:var(--p);}
+
+/* ═══════════════════ SEARCH PAGE ═══════════════════ */
+.search-hero{padding:100px 20px 60px;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.search-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(99,102,241,.1) 0%,transparent 65%);pointer-events:none;}
+.search-box-wrap{max-width:520px;width:100%;margin:0 auto;}
+.search-inp-styled{width:100%;padding:16px 20px;border-radius:14px;background:rgba(255,255,255,.6);backdrop-filter:blur(10px);border:2px solid var(--border);color:var(--text);font-size:1rem;font-family:'Poppins',sans-serif;transition:all .3s;margin-bottom:10px;}
+[data-theme="dark"] .search-inp-styled{background:rgba(26,45,79,.4);}
+.search-inp-styled:focus{outline:none;border-color:var(--p);box-shadow:0 0 16px rgba(255,107,0,.15);}
+.search-or{color:var(--muted);font-size:.8rem;margin:6px 0;text-align:center;}
+.search-btn-styled{width:100%;padding:15px;border-radius:12px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border:none;font-weight:700;font-size:.96rem;cursor:pointer;transition:all .3s;box-shadow:0 6px 20px rgba(255,107,0,.25);}
+.search-btn-styled:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,107,0,.35);}
+
+/* ═══════════════════ PRICING PAGE ═══════════════════ */
+.pricing-page{padding:100px 20px 80px;min-height:100svh;}
+.pricing-inner{max-width:600px;margin:0 auto;text-align:center;}
+.price-box{background:rgba(255,255,255,.6);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:20px;padding:44px 36px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.08);max-width:480px;margin:0 auto 32px;}
+[data-theme="dark"] .price-box{background:rgba(26,45,79,.3);}
+.price-main{font-family:'Baloo 2',cursive;font-size:4rem;font-weight:800;background:linear-gradient(135deg,var(--p),var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:16px 0 4px;}
+.price-list{list-style:none;margin:28px 0;text-align:left;}
+.price-list li{padding:12px 0;border-bottom:1px solid var(--border);font-size:.9rem;display:flex;align-items:center;gap:10px;}
+.price-list li::before{content:'✓';flex-shrink:0;color:#10b981;font-weight:700;font-size:1.1rem;}
+.price-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px;max-width:480px;margin:32px auto 0;}
+.compare-card{background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:14px;padding:24px 20px;text-align:center;}
+[data-theme="dark"] .compare-card{background:rgba(26,45,79,.3);}
+.compare-card.highlighted{border-color:var(--p);background:rgba(255,107,0,.06);}
+.compare-price{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:var(--p);display:block;margin:8px 0;}
+
+/* ═══════════════════ ABOUT PAGE ═══════════════════ */
+.about-page{padding:100px 20px 80px;min-height:100svh;}
+.about-inner{max-width:760px;margin:0 auto;}
+.about-hero-box{text-align:center;margin-bottom:56px;}
+.about-hero-box h1{font-family:'Baloo 2',cursive;font-size:clamp(1.8rem,5vw,3rem);font-weight:800;margin-bottom:14px;}
+.about-hero-box p{color:var(--muted);font-size:.97rem;line-height:1.8;max-width:560px;margin:0 auto;}
+.about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:48px;}
+.about-card{background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:16px;padding:28px 22px;transition:all .3s;}
+[data-theme="dark"] .about-card{background:rgba(26,45,79,.3);}
+.about-card:hover{border-color:var(--p);transform:translateY(-4px);box-shadow:0 10px 32px rgba(255,107,0,.12);}
+.about-card-icon{font-size:2.2rem;margin-bottom:12px;}
+.about-card h3{font-weight:700;font-size:1rem;margin-bottom:8px;}
+.about-card p{color:var(--muted);font-size:.83rem;line-height:1.6;}
+.about-team{text-align:center;background:linear-gradient(135deg,rgba(255,107,0,.08),rgba(255,215,0,.06));border:1.5px solid rgba(255,107,0,.2);border-radius:18px;padding:40px 28px;margin-bottom:32px;}
+.about-team h2{font-family:'Baloo 2',cursive;font-size:1.6rem;font-weight:800;margin-bottom:10px;}
+.about-team p{color:var(--muted);font-size:.9rem;line-height:1.7;}
+
+/* ═══════════════════ SHARED ═══════════════════ */
+.price-box-alt{background:rgba(255,255,255,.6);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:20px;padding:44px 36px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.08);}
+[data-theme="dark"] .price-box-alt{background:rgba(26,45,79,.3);}
+
+/* PRICING & HOW IT WORKS in Pricing page */
+.pricing-how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:32px;}
+.pricing-how-card{background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:14px;padding:24px 18px;text-align:center;}
+[data-theme="dark"] .pricing-how-card{background:rgba(26,45,79,.3);}
+.pricing-how-card .icon{font-size:2rem;margin-bottom:10px;}
+.pricing-how-card h4{font-weight:700;font-size:.92rem;margin-bottom:6px;}
+.pricing-how-card p{color:var(--muted);font-size:.8rem;line-height:1.5;}
 
 /* FOOTER */
-footer{background:#060610;border-top:1px solid var(--border);padding:40px 20px 24px;}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 20px 28px;}
 .foot-in{max-width:1000px;margin:0 auto;}
-.foot-top{display:grid;grid-template-columns:1fr;gap:28px;margin-bottom:32px;}
+.foot-top{display:grid;grid-template-columns:1fr;gap:32px;margin-bottom:36px;}
 @media(min-width:600px){.foot-top{grid-template-columns:2fr 1fr 1fr;}}
-.foot-logo{font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:800;margin-bottom:10px;}
-.foot-logo span{color:var(--p);}
+.foot-logo{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;margin-bottom:10px;background:linear-gradient(135deg,var(--p),var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.foot-logo span{-webkit-text-fill-color:unset;}
 .foot-desc{color:var(--muted);font-size:.84rem;line-height:1.7;}
 .foot-links h4{font-weight:600;margin-bottom:12px;font-size:.9rem;}
-.foot-links a{display:block;color:var(--muted);font-size:.84rem;padding:4px 0;transition:color .2s;}
+.foot-links a{display:block;color:var(--muted);font-size:.84rem;padding:5px 0;transition:color .2s;}
 .foot-links a:hover{color:var(--p);}
-.foot-bottom{border-top:1px solid var(--border);padding-top:20px;text-align:center;color:var(--muted);font-size:.78rem;}
-.social-row{display:flex;gap:10px;margin-top:14px;}
-.soc-a{width:34px;height:34px;border-radius:8px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.9rem;transition:all .2s;}
-.soc-a:hover{border-color:var(--p);color:var(--p);}
+.foot-bottom{border-top:1px solid var(--border);padding-top:24px;text-align:center;color:var(--muted);font-size:.78rem;}
+.social-row{display:flex;gap:10px;margin-top:16px;}
+.soc-a{width:38px;height:38px;border-radius:10px;background:rgba(255,107,0,.1);border:1.5px solid rgba(255,107,0,.2);display:flex;align-items:center;justify-content:center;color:var(--p);font-size:.95rem;transition:all .2s;cursor:pointer;}
+.soc-a:hover{background:var(--p);color:white;border-color:var(--p);transform:translateY(-2px);}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:28px 20px;width:100%;max-height:90svh;overflow-y:auto;}
-@media(min-width:600px){.modal-overlay{align-items:center;padding:20px;}.modal{border-radius:20px;max-width:480px;}}
-.modal h3{font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:800;margin-bottom:8px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);}
+.modal{background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border:1.5px solid var(--border);border-radius:20px 20px 0 0;padding:32px 24px;width:100%;max-height:90svh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+[data-theme="dark"] .modal{background:rgba(26,45,79,.95);}
+@media(min-width:600px){.modal-overlay{align-items:center;padding:20px;}.modal{border-radius:24px;max-width:500px;}}
+.modal h3{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;margin-bottom:12px;}
+.inp-field{width:100%;padding:13px 16px;border-radius:11px;background:var(--bg2);border:1.5px solid var(--border);color:var(--text);font-size:1rem;font-family:'Poppins',sans-serif;margin-bottom:12px;transition:border-color .2s;}
+.inp-field:focus{outline:none;border-color:var(--p);}
+.btn-full{width:100%;padding:14px;border-radius:11px;background:var(--p);color:#fff;font-weight:700;font-size:.95rem;border:none;cursor:pointer;transition:all .2s;}
+.btn-full:hover{background:var(--pd);}
 
 /* ANIMATIONS */
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideDown{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 @keyframes spin{to{transform:rotate(360deg);}}
-.spin{width:20px;height:20px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+.spin{width:20px;height:20px;border:3px solid rgba(255,107,0,.2);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
 
 /* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);padding:12px 20px;border-radius:12px;font-size:.875rem;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:fadeUp .3s ease;white-space:nowrap;}
-.toast.ok{border-color:rgba(0,212,100,.4);color:#00d464;}
-.toast.err{border-color:rgba(255,85,85,.4);color:#ff5555;}
-.toast.info{border-color:rgba(255,107,0,.4);color:var(--p);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border:1.5px solid var(--border);padding:14px 22px;border-radius:12px;font-size:.875rem;z-index:999;box-shadow:0 12px 40px rgba(0,0,0,.15);animation:slideDown .3s ease;white-space:nowrap;}
+[data-theme="dark"] .toast{background:rgba(26,45,79,.95);}
+.toast.ok{border-color:rgba(16,185,129,.3);color:#10b981;}
+.toast.err{border-color:rgba(239,68,68,.3);color:#ef4444;}
+.toast.info{border-color:rgba(255,107,0,.3);color:var(--p);}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ══════════════════ NAV ══════════════════ -->
 <nav>
   <div class="nav-in">
-    <div class="logo">🦅 Poster<span>Wall</span></div>
+    <a href="<?= siteUrl('') ?>" class="logo">🦅 Poster<span>Wall</span></a>
+
+    <div class="nav-tabs" role="tablist">
+      <button class="nav-tab <?= $tab==='home'?'active':'' ?>" onclick="goTab('home')" role="tab">🏠 Home</button>
+      <button class="nav-tab <?= $tab==='create'?'active':'' ?>" onclick="goTab('create')" role="tab">✨ Create</button>
+      <button class="nav-tab <?= $tab==='search'?'active':'' ?>" onclick="goTab('search')" role="tab">🔍 Search</button>
+      <button class="nav-tab <?= $tab==='pricing'?'active':'' ?>" onclick="goTab('pricing')" role="tab">💰 Pricing</button>
+      <button class="nav-tab <?= $tab==='about'?'active':'' ?>" onclick="goTab('about')" role="tab">ℹ️ About</button>
+    </div>
+
     <div class="nav-right">
-      <?php if(loggedIn()): ?>
-      <a href="<?= siteUrl('dashboard/') ?>" class="nav-btn">Dashboard</a>
-      <a href="<?= siteUrl('auth/logout.php') ?>" class="nav-btn out">Logout</a>
-      <?php else: ?>
-      <a href="<?= siteUrl('m/') ?>" class="nav-btn out">📱 Find by Mobile</a>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
       <a href="<?= siteUrl('auth/login.php') ?>" class="nav-btn">Login / Sign Up</a>
-      <?php endif; ?>
     </div>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-badge">🤖 AI-Powered Digital Identity — Sirf ₹9</div>
-  <h1>Photo lo.<br>AI se <span class="grad">Page Banao.</span><br>Duniya ko Dikhao.</h1>
-  <p class="hero-sub">Apni dukaan, dhaba, clinic ya business ki ek photo lo — AI ek beautiful digital page banayega. QR code aur mobile number se koi bhi access kar sakta hai!</p>
 
-  <!-- UPLOAD -->
-  <div class="upload-box" id="upload-box">
-    <input type="file" id="photo-input" accept="image/*" onchange="handlePhoto(event)">
-    <img id="upload-preview" class="upload-preview">
-    <div id="upload-content">
-      <div class="upload-icon">📸</div>
-      <div class="upload-title">Apni dukaan/dhaba ki photo upload karo</div>
-      <div class="upload-sub">JPG, PNG — mobile camera ya gallery se</div>
-    </div>
-  </div>
+<!-- ══════════════════ HOME TAB ══════════════════ -->
+<div id="tab-home" class="page <?= $tab==='home'?'active':'' ?>">
 
-  <button class="gen-btn" id="gen-btn" onclick="startGeneration()" disabled>
-    <i class="fas fa-magic"></i> AI se Digital Page Banao — ₹9
-  </button>
-  <div class="price-tag"><strong>₹9</strong> mein ek baar pay karo — page hamesha live rahega!</div>
+  <section class="hero">
+    <div class="hero-badge">🤖 AI-Powered Digital Identity — Sirf ₹9</div>
+    <h1>Photo lo.<br>AI se <span class="grad">Page Banao.</span><br>Duniya ko Dikhao.</h1>
+    <p class="hero-sub">Apni dukaan, dhaba, clinic ya business ki ek photo lo — AI ek beautiful digital page banayega. QR code aur mobile number se koi bhi access kar sakta hai!</p>
 
-  <!-- MOBILE FIND -->
-  <div class="mob-search">
-    <h3>📱 Kisi ka page mobile number se dhundho</h3>
-    <div class="mob-input-row">
-      <input type="tel" class="mob-input" id="mob-find" placeholder="Mobile number dalein..." maxlength="10" oninput="this.value = this.value.replace(/\D/g, '')">
-      <button class="mob-btn" onclick="findByMobile()"><i class="fas fa-search"></i></button>
-    </div>
-  </div>
-
-  <div class="stats">
-    <div class="stat-item"><strong>₹9</strong><span>Per Page</span></div>
-    <div class="stat-item"><strong>30s</strong><span>Generation</span></div>
-    <div class="stat-item"><strong>QR</strong><span>Included</span></div>
-    <div class="stat-item"><strong>∞</strong><span>Live Forever</span></div>
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section class="section">
-  <div class="section-inner">
-    <div class="sec-head">
-      <h2>Kaise Kaam Karta Hai?</h2>
-      <p>3 simple steps — bas 30 seconds mein!</p>
-    </div>
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-num">1</div>
-        <div class="step-icon">📸</div>
-        <h3>Photo Lo</h3>
-        <p>Apni dukaan ke bahar ki photo lo — board, menu, signboard kuch bhi</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">2</div>
-        <div class="step-icon">🤖</div>
-        <h3>AI Page Banata Hai</h3>
-        <p>Gemini AI photo padhta hai — naam, contact, menu sab extract karta hai aur beautiful page banata hai</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">3</div>
-        <div class="step-icon">📲</div>
-        <h3>Share Karo</h3>
-        <p>QR code print karo ya mobile number se share karo — customer directly page access kar sakta hai</p>
-      </div>
-      <div class="step-card">
-        <div class="step-num">4</div>
-        <div class="step-icon">♾️</div>
-        <h3>Hamesha Live</h3>
-        <p>Ek baar pay karo ₹9 — page posterwall.in pe hamesha live rahega. Kabhi delete nahi hoga!</p>
+    <div class="upload-box" id="upload-box">
+      <input type="file" id="photo-input" accept="image/*" onchange="handlePhoto(event)">
+      <img id="upload-preview" class="upload-preview">
+      <div id="upload-content">
+        <div class="upload-icon">📸</div>
+        <div class="upload-title">Apni dukaan/dhaba ki photo upload karo</div>
+        <div class="upload-sub">JPG, PNG — mobile camera ya gallery se</div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- EXAMPLES -->
-<section class="section examples-bg">
-  <div class="section-inner">
-    <div class="sec-head">
-      <h2>Kiske Liye Hai?</h2>
-      <p>Har type ke business ke liye</p>
-    </div>
-    <div class="examples-grid">
-      <?php
-      $types=[
-        ['🍽️','Dhaba/Restaurant','Menu aur contact page'],
-        ['🛍️','Dukaan','Products aur timing'],
-        ['🏥','Clinic/Doctor','Medical info page'],
-        ['💼','Professional','Digital visiting card'],
-        ['🎉','Event','Invitation page'],
-        ['🏫','Coaching/School','Institute page'],
-        ['💇','Salon/Parlour','Services aur booking'],
-        ['🏋️','Gym/Fitness','Classes aur contact'],
-        ['🔧','Repair Shop','Services aur rates'],
-        ['🎨','Artist/Creator','Portfolio page'],
-        ['🏠','Real Estate','Property page'],
-        ['🚗','Auto/Transport','Booking page'],
-      ];
-      foreach($types as $t): ?>
-      <div class="ex-card">
-        <div class="ex-icon"><?=$t[0]?></div>
-        <div class="ex-name"><?=$t[1]?></div>
-        <div class="ex-desc"><?=$t[2]?></div>
+    <button class="gen-btn" id="gen-btn" onclick="startGeneration()" disabled>
+      <i class="fas fa-magic"></i> AI se Digital Page Banao — ₹9
+    </button>
+    <div class="price-tag"><strong>₹9</strong> mein ek baar pay karo — page hamesha live rahega!</div>
+
+    <div class="mob-search">
+      <h3>📱 Kisi ka page mobile number se dhundho</h3>
+      <div class="mob-input-row">
+        <input type="tel" class="mob-input" id="mob-find" placeholder="Mobile number dalein..." maxlength="15">
+        <button class="mob-btn" onclick="findByMobile()"><i class="fas fa-search"></i></button>
       </div>
-      <?php endforeach; ?>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item"><strong>₹9</strong><span>Per Page</span></div>
+      <div class="stat-item"><strong>30s</strong><span>Generation</span></div>
+      <div class="stat-item"><strong>QR</strong><span>Included</span></div>
+      <div class="stat-item"><strong>∞</strong><span>Live Forever</span></div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="sec-head">
+        <h2>Kaise Kaam Karta Hai?</h2>
+        <p>3 simple steps — bas 30 seconds mein!</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card"><div class="step-num">1</div><div class="step-icon">📸</div><h3>Photo Lo</h3><p>Apni dukaan ke bahar ki photo lo — board, menu, signboard kuch bhi</p></div>
+        <div class="step-card"><div class="step-num">2</div><div class="step-icon">🤖</div><h3>AI Page Banata Hai</h3><p>Gemini AI photo padhta hai — naam, contact, menu sab extract karta hai aur beautiful page banata hai</p></div>
+        <div class="step-card"><div class="step-num">3</div><div class="step-icon">📲</div><h3>Share Karo</h3><p>QR code print karo ya mobile number se share karo — customer directly page access kar sakta hai</p></div>
+        <div class="step-card"><div class="step-num">4</div><div class="step-icon">♾️</div><h3>Hamesha Live</h3><p>Ek baar pay karo ₹9 — page posterwall.in pe hamesha live rahega. Kabhi delete nahi hoga!</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAMPLES -->
+  <section class="section examples-bg">
+    <div class="section-inner">
+      <div class="sec-head">
+        <h2>Kiske Liye Hai?</h2>
+        <p>Har type ke business ke liye</p>
+      </div>
+      <div class="examples-grid">
+        <?php
+        $types=[
+          ['🍽️','Dhaba/Restaurant','Menu aur contact page'],
+          ['🛍️','Dukaan','Products aur timing'],
+          ['🏥','Clinic/Doctor','Medical info page'],
+          ['💼','Professional','Digital visiting card'],
+          ['🎉','Event','Invitation page'],
+          ['🏫','Coaching/School','Institute page'],
+          ['💇','Salon/Parlour','Services aur booking'],
+          ['🏋️','Gym/Fitness','Classes aur contact'],
+          ['🔧','Repair Shop','Services aur rates'],
+          ['🎨','Artist/Creator','Portfolio page'],
+          ['🏠','Real Estate','Property page'],
+          ['🚗','Auto/Transport','Booking page'],
+        ];
+        foreach($types as $t): ?>
+        <div class="ex-card"><div class="ex-icon"><?=$t[0]?></div><div class="ex-name"><?=$t[1]?></div><div class="ex-desc"><?=$t[2]?></div></div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING SNIPPET -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="sec-head"><h2>Simple Pricing</h2><p>Ek baar pay karo — hamesha live</p></div>
+      <div class="price-box">
+        <div style="color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:1px;">Per Digital Page</div>
+        <div class="price-main">₹9</div>
+        <div style="color:var(--muted);font-size:.85rem;margin-bottom:8px;">One time payment</div>
+        <ul class="price-list">
+          <li>Beautiful AI-generated HTML page</li>
+          <li>Mobile number se accessible</li>
+          <li>QR Code — scan karo page khulega</li>
+          <li>WhatsApp &amp; Call buttons</li>
+          <li>Google Maps link</li>
+          <li>Share on all social media</li>
+          <li>Hamesha live — kabhi expire nahi</li>
+          <li>Edit karo anytime (₹9 per re-generate)</li>
+        </ul>
+        <button onclick="goTab('create')" style="display:block;width:100%;padding:14px;border-radius:12px;background:var(--p);color:#fff;font-weight:700;font-size:1rem;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(255,107,0,.4);">Abhi Shuru Karo →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-in">
+      <div class="foot-top">
+        <div>
+          <div class="foot-logo">🦅 Poster<span>Wall</span></div>
+          <p class="foot-desc">Apna Design. Apna Brand. Apni Pehchaan.<br>Har Indian business ka digital identity — sirf ₹9 mein.</p>
+          <div class="social-row">
+            <a href="https://www.instagram.com/posterwall.in/" target="_blank" class="soc-a"><i class="fab fa-instagram"></i></a>
+            <a href="https://x.com/posterwall_in" target="_blank" class="soc-a"><i class="fab fa-x-twitter"></i></a>
+            <a href="https://www.youtube.com/channel/UCeo8ZL4PR9hXR7ZdcMNqiuw" target="_blank" class="soc-a"><i class="fab fa-youtube"></i></a>
+            <a href="https://whatsapp.com/channel/0029VbChgAZ6LwHsRN2vGJ0O" target="_blank" class="soc-a"><i class="fab fa-whatsapp"></i></a>
+          </div>
+        </div>
+        <div class="foot-links">
+          <h4>Quick Links</h4>
+          <a href="javascript:goTab('search')">🔍 Find Business</a>
+          <a href="javascript:goTab('create')">✨ Create Page</a>
+          <a href="<?= siteUrl('auth/login.php') ?>">Login / Sign Up</a>
+          <a href="<?= siteUrl('admin/login.php') ?>">Admin</a>
+        </div>
+        <div class="foot-links">
+          <h4>Company</h4>
+          <a href="javascript:goTab('about')">About Us</a>
+          <a href="javascript:goTab('pricing')">Pricing</a>
+          <a href="#">Privacy Policy</a>
+          <a href="mailto:posterwall.in@gmail.com">Contact</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        © <?=YEAR?> <strong style="color:var(--text);">PosterWall</strong> — A Product of <strong style="color:var(--text);">TechEagles</strong> &nbsp;|&nbsp; Under <strong style="color:var(--text);">Mahakumbrix Innovation</strong> &nbsp;|&nbsp; Made with ❤️ in India
+      </div>
+    </div>
+  </footer>
+</div>
+
+
+<!-- ══════════════════ CREATE TAB ══════════════════ -->
+<div id="tab-create" class="page <?= $tab==='create'?'active':'' ?>">
+  <section class="create-hero">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,107,0,.12) 0%,transparent 65%);pointer-events:none;"></div>
+    <div style="position:relative;width:100%;max-width:600px;margin:0 auto;">
+      <div class="hero-badge" style="margin-bottom:20px;">✨ AI Page Generator — Sirf ₹9</div>
+      <h1 style="font-family:'Baloo 2',cursive;font-size:clamp(1.8rem,5vw,3rem);font-weight:800;margin-bottom:12px;line-height:1.15;">Photo lo, <span class="grad">AI Page Banao</span></h1>
+      <p style="color:var(--muted);font-size:.95rem;line-height:1.7;margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto;">Dukaan/dhaba/clinic ki photo upload karo — AI 30 seconds mein ek beautiful digital page banayega.</p>
+
+      <div class="create-steps-row">
+        <div class="create-step-pill">📸 Photo Upload</div>
+        <div style="color:var(--muted);font-size:.9rem;">→</div>
+        <div class="create-step-pill">🤖 AI Extract</div>
+        <div style="color:var(--muted);font-size:.9rem;">→</div>
+        <div class="create-step-pill">✅ Live Page</div>
+      </div>
+
+      <div class="upload-box" id="upload-box-create" style="margin-bottom:20px;">
+        <input type="file" id="photo-input-create" accept="image/*" onchange="handlePhotoCreate(event)">
+        <img id="upload-preview-create" class="upload-preview">
+        <div id="upload-content-create">
+          <div class="upload-icon">📸</div>
+          <div class="upload-title">Apni dukaan/dhaba ki photo upload karo</div>
+          <div class="upload-sub">JPG, PNG — mobile camera ya gallery se</div>
+        </div>
+      </div>
+
+      <button class="gen-btn" id="gen-btn-create" onclick="startGenerationCreate()" disabled>
+        <i class="fas fa-magic"></i> AI se Digital Page Banao — ₹9
+      </button>
+      <div class="price-tag" style="justify-content:center;"><strong>₹9</strong> — one-time payment, page hamesha live</div>
+
+      <div style="margin-top:32px;background:rgba(255,107,0,.06);border:1px solid rgba(255,107,0,.18);border-radius:14px;padding:18px 20px;font-size:.83rem;color:var(--muted);line-height:1.6;text-align:left;">
+        <strong style="color:var(--text);">🔐 Login required:</strong> Generate karne ke liye login/signup zaroori hai — free mein account bana sakte ho. Ek baar photo upload karo, login karo, aur AI page ban jayega!
+      </div>
+    </div>
+  </section>
+
+  <footer style="background:var(--bg2);border-top:1px solid var(--border);padding:24px 20px;text-align:center;">
+    <div style="color:var(--muted);font-size:.78rem;">© <?=YEAR?> <strong style="color:var(--text);">PosterWall</strong> — A Product of TechEagles &nbsp;|&nbsp; Made with ❤️ in India</div>
+  </footer>
+</div>
+
+
+<!-- ══════════════════ SEARCH TAB ══════════════════ -->
+<div id="tab-search" class="page <?= $tab==='search'?'active':'' ?>">
+  <section class="search-hero" style="position:relative;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(99,102,241,.1) 0%,transparent 65%);pointer-events:none;"></div>
+    <div style="position:relative;width:100%;max-width:540px;margin:0 auto;text-align:center;">
+      <div class="hero-badge" style="background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.25);color:#6366f1;margin-bottom:20px;">🔍 Business Search</div>
+      <h1 style="font-family:'Baloo 2',cursive;font-size:clamp(1.8rem,5vw,3rem);font-weight:800;margin-bottom:12px;">Business <span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Dhundo</span></h1>
+      <p style="color:var(--muted);font-size:.95rem;line-height:1.7;margin-bottom:32px;">Mobile number <strong>ya</strong> business name dalein — digital page seedha khul jayega</p>
+
+      <div class="search-box-wrap">
+        <input type="tel" class="search-inp-styled" id="search-mobile-inp" placeholder="📱 Mobile number (10 digits)..." maxlength="15" onkeypress="if(event.key==='Enter')doSearch()">
+        <div class="search-or">— ya —</div>
+        <input type="text" class="search-inp-styled" id="search-name-inp" placeholder="🏪 Business ka naam..." maxlength="80" onkeypress="if(event.key==='Enter')doSearch()">
+        <button class="search-btn-styled" onclick="doSearch()" style="margin-top:8px;">
+          <i class="fas fa-search"></i> Dhundo
+        </button>
+      </div>
+
+      <div style="margin-top:40px;display:flex;justify-content:center;gap:24px;flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div style="font-size:2rem;margin-bottom:6px;">📱</div>
+          <div style="font-weight:600;font-size:.88rem;">Mobile se</div>
+          <div style="color:var(--muted);font-size:.77rem;">/m/9876543210</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:2rem;margin-bottom:6px;">🏪</div>
+          <div style="font-weight:600;font-size:.88rem;">Naam se</div>
+          <div style="color:var(--muted);font-size:.77rem;">/m/?name=Sharma+Dhaba</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:2rem;margin-bottom:6px;">📲</div>
+          <div style="font-weight:600;font-size:.88rem;">QR Scan karo</div>
+          <div style="color:var(--muted);font-size:.77rem;">Direct page khulega</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer style="background:var(--bg2);border-top:1px solid var(--border);padding:24px 20px;text-align:center;">
+    <div style="color:var(--muted);font-size:.78rem;">© <?=YEAR?> <strong style="color:var(--text);">PosterWall</strong> — A Product of TechEagles &nbsp;|&nbsp; Made with ❤️ in India</div>
+  </footer>
+</div>
+
+
+<!-- ══════════════════ PRICING TAB ══════════════════ -->
+<div id="tab-pricing" class="page <?= $tab==='pricing'?'active':'' ?>">
+  <div class="pricing-page">
+    <div class="pricing-inner">
+      <div style="text-align:center;margin-bottom:48px;">
+        <div class="hero-badge" style="margin-bottom:16px;">💰 Transparent Pricing</div>
+        <h1 style="font-family:'Baloo 2',cursive;font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800;margin-bottom:12px;">Simple, Honest Pricing</h1>
+        <p style="color:var(--muted);font-size:.95rem;line-height:1.7;max-width:480px;margin:0 auto;">Koi hidden fees nahi. Ek baar pay karo — page hamesha live.</p>
+      </div>
+
+      <div class="price-box">
+        <div style="color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:1px;">Per Digital Page</div>
+        <div class="price-main">₹9</div>
+        <div style="color:var(--muted);font-size:.85rem;margin-bottom:4px;">One-time payment</div>
+        <div style="display:inline-block;background:rgba(16,185,129,.1);color:#10b981;border-radius:100px;padding:4px 12px;font-size:.75rem;font-weight:600;margin-bottom:20px;">No monthly fees ✓</div>
+        <ul class="price-list">
+          <li>Beautiful AI-generated HTML page</li>
+          <li>Mobile number se accessible</li>
+          <li>QR Code — scan karo page khulega</li>
+          <li>WhatsApp &amp; Call buttons</li>
+          <li>Google Maps link</li>
+          <li>Share on all social media</li>
+          <li>Hamesha live — kabhi expire nahi hoga</li>
+          <li>Edit karo anytime (₹9 per re-generate)</li>
+          <li>Menu editor — free updates</li>
+          <li>AI Edit feature included</li>
+        </ul>
+        <button onclick="goTab('create')" style="display:block;width:100%;padding:14px;border-radius:12px;background:var(--p);color:#fff;font-weight:700;font-size:1rem;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(255,107,0,.4);">Abhi Start Karo — ₹9 →</button>
+      </div>
+
+      <!-- Comparison -->
+      <div style="margin-top:40px;margin-bottom:8px;text-align:center;">
+        <h2 style="font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;margin-bottom:8px;">PosterWall vs Traditional</h2>
+        <p style="color:var(--muted);font-size:.88rem;">Aap kitna bachate ho?</p>
+      </div>
+      <div class="price-compare">
+        <div class="compare-card">
+          <div style="font-size:1.6rem;margin-bottom:8px;">🏗️</div>
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:4px;">Website Developer</div>
+          <span class="compare-price" style="color:#ef4444;">₹10,000+</span>
+          <div style="color:var(--muted);font-size:.75rem;">Ek baar + maintenance</div>
+        </div>
+        <div class="compare-card highlighted">
+          <div style="font-size:1.6rem;margin-bottom:8px;">🦅</div>
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:4px;">PosterWall</div>
+          <span class="compare-price">₹9</span>
+          <div style="color:var(--muted);font-size:.75rem;">Bas itna — hamesha</div>
+        </div>
+      </div>
+
+      <!-- Wallet info -->
+      <div style="margin-top:32px;background:rgba(255,107,0,.06);border:1.5px solid rgba(255,107,0,.2);border-radius:16px;padding:28px 24px;text-align:left;">
+        <h3 style="font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:800;margin-bottom:14px;">💳 Wallet Recharge Options</h3>
+        <div style="display:grid;gap:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,.5);border-radius:10px;border:1px solid var(--border);">
+            <span style="font-weight:600;">Single Page</span>
+            <span style="font-weight:800;color:var(--p);">₹9</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,107,0,.08);border-radius:10px;border:1px solid rgba(255,107,0,.2);">
+            <span style="font-weight:600;">10 Pages Pack <span style="background:var(--p);color:#fff;font-size:.7rem;padding:2px 8px;border-radius:100px;margin-left:6px;">Save ₹11</span></span>
+            <span style="font-weight:800;color:var(--p);">₹79</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,107,0,.08);border-radius:10px;border:1px solid rgba(255,107,0,.2);">
+            <span style="font-weight:600;">25 Pages Pack <span style="background:var(--p);color:#fff;font-size:.7rem;padding:2px 8px;border-radius:100px;margin-left:6px;">Save ₹46</span></span>
+            <span style="font-weight:800;color:var(--p);">₹179</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div style="margin-top:40px;text-align:left;">
+        <h2 style="font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;margin-bottom:20px;text-align:center;">❓ Frequently Asked Questions</h2>
+        <div style="display:grid;gap:12px;">
+          <?php
+          $faqs=[
+            ['Kya page permanently live rahega?','Haan! Ek baar pay karo aur page hamesha live rahega. Koi annual fee nahi, koi renewal nahi.'],
+            ['Kya main page edit kar sakta hoon?','Haan — menu editor free hai. Full page re-generate ₹9 mein hota hai. AI Edit feature bhi available hai.'],
+            ['Payment ke baad page kab milega?','Generate karte hi — 30 seconds mein page live ho jata hai.'],
+            ['Kya QR code milega?','Haan, har page ke saath ek unique QR code milta hai jo directly page open karta hai.'],
+            ['Mobile number compulsory hai?','Nahi — business name se bhi page register kar sakte ho. Mobile optional hai.'],
+          ];
+          foreach($faqs as $faq): ?>
+          <div style="background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:12px;padding:18px 20px;">
+            <div style="font-weight:700;font-size:.9rem;margin-bottom:6px;"><?= $faq[0] ?></div>
+            <div style="color:var(--muted);font-size:.83rem;line-height:1.6;"><?= $faq[1] ?></div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
     </div>
   </div>
-</section>
 
-<!-- PRICING -->
-<section class="section">
-  <div class="section-inner">
-    <div class="sec-head">
-      <h2>Simple Pricing</h2>
-      <p>Ek baar pay karo — hamesha live</p>
-    </div>
-    <div class="price-box">
-      <div style="color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:1px;">Per Digital Page</div>
-      <div class="price-main">₹9</div>
-      <div style="color:var(--muted);font-size:.85rem;margin-bottom:8px;">One time payment</div>
-      <ul class="price-list">
-        <li>Beautiful AI-generated HTML page</li>
-        <li>Mobile number se accessible</li>
-        <li>QR Code — scan karo page khulega</li>
-        <li>WhatsApp & Call buttons</li>
-        <li>Google Maps link</li>
-        <li>Share on all social media</li>
-        <li>Hamesha live — kabhi expire nahi</li>
-        <li>Edit karo anytime (₹9 per re-generate)</li>
-      </ul>
-      <a href="<?= siteUrl('auth/login.php') ?>" style="display:block;padding:14px;border-radius:12px;background:var(--p);color:#fff;font-weight:700;font-size:1rem;text-align:center;box-shadow:0 6px 24px rgba(255,107,0,.4);">Abhi Shuru Karo →</a>
-    </div>
-  </div>
-</section>
+  <footer style="background:var(--bg2);border-top:1px solid var(--border);padding:24px 20px;text-align:center;">
+    <div style="color:var(--muted);font-size:.78rem;">© <?=YEAR?> <strong style="color:var(--text);">PosterWall</strong> — A Product of TechEagles &nbsp;|&nbsp; Made with ❤️ in India</div>
+  </footer>
+</div>
 
-<!-- FOOTER -->
-<footer>
-  <div class="foot-in">
-    <div class="foot-top">
-      <div>
-        <div class="foot-logo">🦅 Poster<span>Wall</span></div>
-        <p class="foot-desc">Apna Design. Apna Brand. Apni Pehchaan.<br>Har Indian business ka digital identity — sirf ₹9 mein.</p>
-        <div class="social-row">
+
+<!-- ══════════════════ ABOUT TAB ══════════════════ -->
+<div id="tab-about" class="page <?= $tab==='about'?'active':'' ?>">
+  <div class="about-page">
+    <div class="about-inner">
+      <div class="about-hero-box">
+        <div class="hero-badge" style="margin-bottom:16px;">🦅 Our Story</div>
+        <h1>Hum Kaun Hain?</h1>
+        <p>PosterWall ek Indian startup hai jo chota business owners ke liye digital presence aasaan aur affordable banata hai — sirf ₹9 mein.</p>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-card">
+          <div class="about-card-icon">🎯</div>
+          <h3>Hamara Mission</h3>
+          <p>Har Indian business owner — chahe dhaba ho, dukaan ho ya clinic — ko ek beautiful digital identity dena. Sirf ₹9 mein.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🤖</div>
+          <h3>AI-Powered</h3>
+          <p>Gemini AI se photo se automatically business info extract karta hai aur ek stunning HTML page generate karta hai.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🇮🇳</div>
+          <h3>Made in India</h3>
+          <p>TechEagles ka product — Mahakumbrix Innovation ke under. Bharat ke chote business ke liye, Bharat mein banaya.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">📲</div>
+          <h3>Mobile First</h3>
+          <p>QR code ya mobile number — koi bhi customer aapka page easily dhundh sakta hai bina app download kiye.</p>
+        </div>
+      </div>
+
+      <div class="about-team">
+        <div style="font-size:3rem;margin-bottom:14px;">🦅</div>
+        <h2>TechEagles</h2>
+        <p style="margin-bottom:12px;">We are a team of passionate engineers and designers building affordable digital tools for Indian businesses. PosterWall is our flagship product under <strong>Mahakumbrix Innovation</strong>.</p>
+        <p>📧 <a href="mailto:posterwall.in@gmail.com" style="color:var(--p);font-weight:600;">posterwall.in@gmail.com</a></p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:40px;text-align:center;">
+        <div style="background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:14px;padding:28px 16px;">
+          <div style="font-family:'Baloo 2',cursive;font-size:2.4rem;font-weight:800;color:var(--p);">₹9</div>
+          <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">Per Page — Forever</div>
+        </div>
+        <div style="background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:14px;padding:28px 16px;">
+          <div style="font-family:'Baloo 2',cursive;font-size:2.4rem;font-weight:800;color:var(--p);">30s</div>
+          <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">Average Generation</div>
+        </div>
+        <div style="background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:14px;padding:28px 16px;">
+          <div style="font-family:'Baloo 2',cursive;font-size:2.4rem;font-weight:800;color:var(--p);">AI</div>
+          <div style="color:var(--muted);font-size:.8rem;margin-top:4px;">Powered by Gemini</div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-bottom:32px;">
+        <h2 style="font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;margin-bottom:8px;">Hamare Saath Judo</h2>
+        <p style="color:var(--muted);font-size:.88rem;margin-bottom:20px;">Social media pe follow karo updates ke liye</p>
+        <div class="social-row" style="justify-content:center;">
           <a href="https://www.instagram.com/posterwall.in/" target="_blank" class="soc-a"><i class="fab fa-instagram"></i></a>
           <a href="https://x.com/posterwall_in" target="_blank" class="soc-a"><i class="fab fa-x-twitter"></i></a>
           <a href="https://www.youtube.com/channel/UCeo8ZL4PR9hXR7ZdcMNqiuw" target="_blank" class="soc-a"><i class="fab fa-youtube"></i></a>
           <a href="https://whatsapp.com/channel/0029VbChgAZ6LwHsRN2vGJ0O" target="_blank" class="soc-a"><i class="fab fa-whatsapp"></i></a>
         </div>
       </div>
-      <div class="foot-links">
-        <h4>Quick Links</h4>
-        <a href="<?= siteUrl('m/') ?>">📱 Find by Mobile</a>
-        <a href="<?= siteUrl('auth/login.php') ?>">Login / Sign Up</a>
-        <a href="<?= siteUrl('dashboard/') ?>">Dashboard</a>
-        <a href="<?= siteUrl('admin/login.php') ?>">Admin</a>
+
+      <div style="text-align:center;">
+        <button onclick="goTab('create')" style="padding:14px 36px;border-radius:12px;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-weight:700;font-size:1rem;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(255,107,0,.3);">Apna Page Banao — ₹9 →</button>
       </div>
-      <div class="foot-links">
-        <h4>Company</h4>
-        <a href="#">About Us</a>
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-        <a href="mailto:posterwall.in@gmail.com">Contact</a>
-      </div>
-    </div>
-    <div class="foot-bottom">
-      © <?=YEAR?> <strong style="color:var(--text);">PosterWall</strong> — A Product of <strong style="color:var(--text);">Tech Eagles</strong> under <strong style="color:var(--text);">Mahakumbrix Innovation</strong> &nbsp;|&nbsp; Made with ❤️ in India
     </div>
   </div>
-</footer>
 
-<!-- MOBILE MODAL -->
-<div id="mobile-modal" class="modal-overlay" style="display:none;">
+  <footer style="background:var(--bg2);border-top:1px solid var(--border);padding:24px 20px;text-align:center;">
+    <div style="color:var(--muted);font-size:.78rem;">© <?=YEAR?> <strong style="color:var(--text);">PosterWall</strong> — A Product of TechEagles &nbsp;|&nbsp; Made with ❤️ in India</div>
+  </footer>
+</div>
+
+
+<!-- ══════════════════ MODALS ══════════════════ -->
+<!-- Login prompt modal -->
+<div id="login-modal" class="modal-overlay" style="display:none;">
   <div class="modal">
-    <h3>📱 Apna Mobile Number</h3>
-    <p style="color:var(--muted);font-size:.875rem;margin-bottom:16px;">Mobile number add karo taaki log aapka page number se dhundh sakein!</p>
-    <input type="tel" id="user-mobile" style="width:100%;padding:13px 16px;border-radius:11px;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-size:1rem;font-family:'Poppins',sans-serif;margin-bottom:12px;" placeholder="10-digit mobile number" maxlength="10" oninput="this.value = this.value.replace(/\D/g, '')">
-    <button onclick="proceedGeneration()" style="width:100%;padding:14px;border-radius:11px;background:var(--p);color:#fff;font-weight:700;font-size:.95rem;border:none;cursor:pointer;">
-      <i class="fas fa-magic"></i> Generate Karo — ₹9
-    </button>
-    <button onclick="proceedGeneration()" style="width:100%;padding:12px;border-radius:11px;background:none;border:none;color:var(--muted);cursor:pointer;margin-top:8px;font-size:.85rem;">Mobile skip karo — Continue</button>
+    <h3>🔐 Login Zaroori Hai</h3>
+    <p style="color:var(--muted);font-size:.875rem;margin-bottom:20px;">Page generate karne ke liye login ya sign up karo — bilkul free!</p>
+    <a href="<?= siteUrl('auth/login.php') ?>" style="display:block;padding:14px;border-radius:11px;background:var(--p);color:#fff;font-weight:700;font-size:.95rem;text-align:center;margin-bottom:10px;">Login / Sign Up (Free)</a>
+    <button onclick="document.getElementById('login-modal').style.display='none'" style="width:100%;padding:12px;border-radius:11px;background:none;border:1.5px solid var(--border);color:var(--muted);cursor:pointer;font-size:.85rem;">Cancel</button>
   </div>
 </div>
 
 <script>
 let photoB64 = null, photoMime = null;
+let photoB64Create = null, photoMimeCreate = null;
 
+// ── Tab routing ──
+function goTab(name) {
+  // Update URL without reload
+  const url = name === 'home' ? '/' : '/?tab=' + name;
+  history.pushState({tab: name}, '', url);
+  activateTab(name);
+}
+
+function activateTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const page = document.getElementById('tab-' + name);
+  if (page) page.classList.add('active');
+  // find matching tab button
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.getAttribute('onclick') === "goTab('" + name + "')") t.classList.add('active');
+  });
+  window.scrollTo(0,0);
+}
+
+// Handle browser back/forward
+window.addEventListener('popstate', (e) => {
+  const tab = (e.state && e.state.tab) ? e.state.tab : 'home';
+  activateTab(tab);
+});
+
+// ── Home tab photo ──
 function handlePhoto(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -353,54 +733,56 @@ function handlePhoto(e) {
 
 function startGeneration() {
   if (!photoB64) { toast('Pehle photo upload karo!', 'err'); return; }
-  <?php if(!loggedIn()): ?>
-  window.location.href = '<?= siteUrl('auth/login.php?next=/') ?>&generate=1';
-  <?php else: ?>
-  document.getElementById('mobile-modal').style.display = 'flex';
-  <?php endif; ?>
+  document.getElementById('login-modal').style.display = 'flex';
 }
 
-function proceedGeneration() {
-  document.getElementById('mobile-modal').style.display = 'none';
-  const mobile = document.getElementById('user-mobile').value.replace(/\D/g,'');
-  const bal = <?= loggedIn() ? wallet() : 0 ?>;
-  if (bal < 9) { window.location.href = '<?= SITE_URL ?>/dashboard/wallet.php?recharge=1'; return; }
-  const btn = document.getElementById('gen-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spin"></div> AI Page Bana Raha Hai...';
-  toast('🤖 Gemini AI kaam kar raha hai...', 'info');
-
-  fetch('<?= SITE_URL ?>/api/generate.php', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ image_base64: photoB64, mime_type: photoMime, mobile: mobile })
-  })
-  .then(r => r.json())
-  .then(res => {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-magic"></i> AI se Digital Page Banao — ₹9';
-    if (res.success) {
-      window.location.href = '<?= SITE_URL ?>/p/' + res.token;
-    } else if (res.error === 'no_balance') {
-      window.location.href = '<?= SITE_URL ?>/dashboard/wallet.php?recharge=1';
-    } else {
-      toast(res.error || 'Kuch gadbad hui. Dobara try karo!', 'err');
-    }
-  })
-  .catch(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-magic"></i> AI se Digital Page Banao — ₹9';
-    toast('Network error! Internet check karo.', 'err');
-  });
+// ── Create tab photo ──
+function handlePhotoCreate(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    photoB64Create  = ev.target.result.split(',')[1];
+    photoMimeCreate = file.type;
+    const prev = document.getElementById('upload-preview-create');
+    const cont = document.getElementById('upload-content-create');
+    prev.src = ev.target.result;
+    prev.style.display = 'block';
+    cont.style.display = 'none';
+    document.getElementById('gen-btn-create').disabled = false;
+    toast('Photo ready! Generate karo 🎨', 'ok');
+  };
+  reader.readAsDataURL(file);
 }
 
+function startGenerationCreate() {
+  if (!photoB64Create) { toast('Pehle photo upload karo!', 'err'); return; }
+  // Not logged in — show login modal
+  document.getElementById('login-modal').style.display = 'flex';
+}
+
+// ── Search ──
 function findByMobile() {
   const mob = document.getElementById('mob-find').value.replace(/\D/g,'');
   if (mob.length < 10) { toast('Valid mobile number dalein!', 'err'); return; }
   window.location.href = '<?= SITE_URL ?>/m/' + mob;
 }
-document.getElementById('mob-find').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') findByMobile();
+
+function doSearch() {
+  const mob  = document.getElementById('search-mobile-inp').value.replace(/\D/g,'');
+  const name = (document.getElementById('search-name-inp').value || '').trim();
+  if (mob.length >= 10) {
+    window.location.href = '<?= SITE_URL ?>/m/' + mob;
+  } else if (name.length >= 2) {
+    window.location.href = '<?= SITE_URL ?>/m/?name=' + encodeURIComponent(name);
+  } else {
+    toast('Mobile number (10 digits) ya business naam (2+ letters) dalein!', 'err');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const mobFind = document.getElementById('mob-find');
+  if (mobFind) mobFind.addEventListener('keypress', (e) => { if(e.key==='Enter') findByMobile(); });
 });
 
 function toast(msg, type='info') {
@@ -410,6 +792,26 @@ function toast(msg, type='info') {
   document.body.appendChild(d);
   setTimeout(() => d.remove(), 3500);
 }
+
+// ── Theme ──
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = savedTheme === 'system' ? (prefersDark ? 'dark' : 'light') : savedTheme;
+  applyTheme(theme);
+}
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  const toggle = document.getElementById('theme-toggle');
+  if (toggle) toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+document.addEventListener('DOMContentLoaded', initTheme);
 </script>
 </body>
 </html>

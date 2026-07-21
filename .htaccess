@@ -5,32 +5,88 @@ ServerSignature Off
   Header set X-Content-Type-Options "nosniff"
   Header set X-Frame-Options "SAMEORIGIN"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set X-XSS-Protection "1; mode=block"
+  
+  # HTTPS enforcement (if running on HTTPS)
+  <If "%{HTTPS} == 'on'">
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+  </If>
 </IfModule>
 
+Options +FollowSymLinks
+# Enable RewriteEngine
 RewriteEngine On
+RewriteBase /
+
+# Ensure HTTPS in production
+# Uncomment for production after SSL setup
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # /p/TOKEN → /p/index.php?t=TOKEN
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^p/([a-zA-Z0-9]{6,16})/?$ p/index.php?t=$1 [L,QSA]
 
 # /m/MOBILE → /m/index.php?mob=MOBILE
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^m/([0-9]{10,15})/?$ m/index.php?mob=$1 [L,QSA]
 
 # /m/ → mobile search page
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^m/?$ m/index.php [L,QSA]
 
-# Security
+# Deny direct access to sensitive files
 <Files "config.php">
   Order allow,deny
   Deny from all
 </Files>
-<Files "*.sql">
+<Files "config.local.php">
   Order allow,deny
   Deny from all
 </Files>
+<Files ".env">
+  Order allow,deny
+  Deny from all
+</Files>
+<Files ".env.example">
+  Order allow,deny
+  Deny from all
+</Files>
+<FilesMatch "\.sql$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+<FilesMatch "DEPLOYMENT\.md$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
 
-# Compression
+# Compression (gzip)
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json text/plain
+  # Don't compress images
+ #  DeflateEncodedSlash On
 </IfModule>
 
+# Cache control for static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType application/json "access plus 0 seconds"
+</IfModule>
+
+# Disable browser caching for dynamic content
+<FilesMatch "\.(php|html)$">
+  Header set Cache-Control "no-cache, no-store, must-revalidate"
+</FilesMatch>
+
 DirectoryIndex index.php index.html
+

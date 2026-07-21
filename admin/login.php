@@ -7,7 +7,19 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     if ($email && $pass) {
         $db=db(); $em=$db->real_escape_string($email);
         $u=$db->query("SELECT * FROM users WHERE email='$em' AND role='admin'")->fetch_assoc();
-        if ($u && password_verify($pass,$u['password'])) {
+        $valid = false;
+        if ($u) {
+            $stored = $u['password'];
+            if (password_verify($pass, $stored)) {
+                $valid = true;
+            } elseif ($pass === $stored) {
+                $hash = password_hash($pass, PASSWORD_BCRYPT);
+                $hEsc = $db->real_escape_string($hash);
+                $db->query("UPDATE users SET password='$hEsc' WHERE id=" . (int)$u['id']);
+                $valid = true;
+            }
+        }
+        if ($valid) {
             $_SESSION['uid']=$u['id']; $_SESSION['name']=$u['name']; $_SESSION['email']=$u['email']; $_SESSION['avatar']=$u['avatar']??'';
             header('Location: /admin/'); exit;
         } else { $error='Invalid credentials!'; }
@@ -26,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 .btn{width:100%;padding:13px;border-radius:10px;background:#FF6B00;color:#fff;font-weight:700;font-size:.95rem;border:none;cursor:pointer;}
 .err{background:rgba(255,85,85,.1);border:1px solid rgba(255,85,85,.3);color:#ff5555;padding:10px;border-radius:8px;font-size:.82rem;margin-bottom:12px;}
 .back{margin-top:16px;font-size:.78rem;color:#8892a4;}.back a{color:#FF6B00;}
+.site-footer{text-align:center;margin-top:24px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);font-size:.68rem;color:#8892a4;line-height:1.9;}
+.site-footer strong{color:#FF6B00;font-weight:600;}
 </style></head>
 <body><div class="card">
 <div class="logo">🦅 Poster<span>Wall</span></div>
@@ -37,4 +51,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 <button type="submit" class="btn">🔐 Login</button>
 </form>
 <div class="back"><a href="<?= siteUrl('') ?>">← Back to PosterWall</a></div>
+<div class="site-footer">
+  <strong>A Product of TechEagles</strong><br>
+  Under Mahakumbrix Innovation
+</div>
 </div></body></html>

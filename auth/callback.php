@@ -28,7 +28,9 @@ curl_setopt_array($ch, [
 ]);
 $tokRaw = curl_exec($ch);
 $curlErr = curl_error($ch);
-curl_close($ch);
+if (PHP_VERSION_ID < 80500) {
+    curl_close($ch);
+}
 
 if ($tokRaw === false || $curlErr) {
     header('Location: ' . siteUrl('auth/login.php?error=' . urlencode('Token request failed')));
@@ -50,7 +52,9 @@ curl_setopt_array($ch, [
 ]);
 $infoRaw = curl_exec($ch);
 $curlErr = curl_error($ch);
-curl_close($ch);
+if (PHP_VERSION_ID < 80500) {
+    curl_close($ch);
+}
 
 if ($infoRaw === false || $curlErr) {
     header('Location: ' . siteUrl('auth/login.php?error=' . urlencode('User info request failed')));
@@ -58,6 +62,7 @@ if ($infoRaw === false || $curlErr) {
 }
 
 $info = json_decode($infoRaw, true);
+
 if (!is_array($info) || !isset($info['email'])) {
     $error = $info['error_description'] ?? $info['error'] ?? 'User info failed';
     header('Location: ' . siteUrl('auth/login.php?error=' . urlencode($error)));
@@ -70,7 +75,7 @@ $name   = $db->real_escape_string($info['name']);
 $gid    = $db->real_escape_string($info['id']);
 $avatar = $db->real_escape_string($info['picture'] ?? '');
 
-$res = $db->query("SELECT id,role FROM users WHERE email='$email'");
+$res = $db->query("SELECT id, role, is_power_user FROM users WHERE email='$email'");
 if ($res->num_rows > 0) {
     $u = $res->fetch_assoc();
     $db->query("UPDATE users SET name='$name',google_id='$gid',avatar='$avatar' WHERE id={$u['id']}");
