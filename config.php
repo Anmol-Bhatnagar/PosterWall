@@ -181,6 +181,7 @@ function db() {
         $conn->query("SET sql_mode='STRICT_TRANS_TABLES'");
         ensurePagesMenuColumn($conn);
         ensureUserPowerColumn($conn);
+        ensureOrdersTable($conn);
     }
     return $conn;
 }
@@ -205,6 +206,27 @@ function ensureUserPowerColumn(mysqli $conn): void {
     if ($result && $result->num_rows === 0) {
         $conn->query("ALTER TABLE users ADD COLUMN is_power_user TINYINT(1) NOT NULL DEFAULT 0");
     }
+}
+
+function ensureOrdersTable(mysqli $conn): void {
+    static $checked = false;
+    if ($checked) return;
+    $checked = true;
+    $conn->query("CREATE TABLE IF NOT EXISTS orders (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        page_id INT NOT NULL,
+        customer_name VARCHAR(100) NOT NULL,
+        customer_phone VARCHAR(20) NOT NULL,
+        delivery_address TEXT DEFAULT NULL,
+        items TEXT NOT NULL,
+        total_amount DECIMAL(10,2) NOT NULL,
+        payment_status VARCHAR(20) DEFAULT 'pending',
+        order_status VARCHAR(20) DEFAULT 'new',
+        rzp_order_id VARCHAR(100) DEFAULT NULL,
+        rzp_payment_id VARCHAR(100) DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_page (page_id)
+    )");
 }
 
 // ── Auth helpers ──────────────────────────────────────────────

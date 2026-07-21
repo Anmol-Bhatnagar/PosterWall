@@ -10,6 +10,7 @@ $pages = $db->query("SELECT * FROM pages WHERE user_id=$uid AND is_active=1 ORDE
 $total = $db->query("SELECT COUNT(*) as c FROM pages WHERE user_id=$uid AND is_active=1")->fetch_assoc()['c'];
 $views = $db->query("SELECT COALESCE(SUM(views),0) as v FROM pages WHERE user_id=$uid AND is_active=1")->fetch_assoc()['v'];
 $gens  = $db->query("SELECT COUNT(*) as c FROM generations WHERE user_id=$uid")->fetch_assoc()['c'];
+$ordersCount = $db->query("SELECT COUNT(*) as c FROM orders o JOIN pages p ON o.page_id=p.id WHERE p.user_id=$uid AND o.payment_status='success'")->fetch_assoc()['c'];
 $typeIcons=['restaurant'=>'🍽️','shop'=>'🛍️','clinic'=>'🏥','professional'=>'💼','salon'=>'💇','gym'=>'🏋️','school'=>'🏫','repair'=>'🔧','event'=>'🎉','general'=>'🦅'];
 ?>
 <!DOCTYPE html>
@@ -41,7 +42,7 @@ nav{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);-webkit-backdrop
 
 /* Stats */
 .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:28px;}
-@media(min-width:600px){.stats{grid-template-columns:repeat(4,1fr);}}
+@media(min-width:600px){.stats{grid-template-columns:repeat(5,1fr);}}
 .stat-c{background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:14px;padding:18px 16px;position:relative;overflow:hidden;transition:all .3s;}
 [data-theme="dark"] .stat-c{background:rgba(26,45,79,.3);}
 .stat-c:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08);}
@@ -246,6 +247,7 @@ window.pwProgress = (function(){
     <div class="stat-c"><div class="stat-label">My Pages</div><div class="stat-val"><?= $total ?></div></div>
     <div class="stat-c b"><div class="stat-label">Total Views</div><div class="stat-val"><?= number_format($views) ?></div></div>
     <div class="stat-c g"><div class="stat-label">Generations</div><div class="stat-val"><?= $gens ?></div></div>
+    <div class="stat-c b"><div class="stat-label">Orders</div><div class="stat-val"><a href="<?= siteUrl('dashboard/orders.php') ?>" style="color:inherit;"><?= $ordersCount ?></a></div></div>
     <div class="stat-c y"><div class="stat-label">Cost/Page</div><div class="stat-val"><?= $power ? '₹0' : '₹9' ?></div></div>
   </div>
 
@@ -328,6 +330,7 @@ window.pwProgress = (function(){
 <!-- Bottom Nav -->
 <nav class="bot-nav">
   <a href="<?= siteUrl('dashboard/') ?>" class="on"><i class="fas fa-home"></i>Home</a>
+  <a href="<?= siteUrl('dashboard/orders.php') ?>"><i class="fas fa-shopping-bag"></i>Orders</a>
   <a href="<?= siteUrl('dashboard/create.php') ?>"><i class="fas fa-plus-circle"></i>New Page</a>
   <a href="<?= siteUrl('m/') ?>"><i class="fas fa-search"></i>Find</a>
   <a href="<?= siteUrl('dashboard/wallet.php') ?>"><i class="fas fa-wallet"></i>Wallet</a>

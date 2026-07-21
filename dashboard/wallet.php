@@ -86,10 +86,11 @@ nav{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);-webkit-backdrop
   </div>
 </div>
 <nav class="bot-nav">
-  <a href="<?= siteUrl('dashboard/') ?>" class="on"><i class="fas fa-home"></i>Home</a>
-  <a href="<?= siteUrl('') ?>"><i class="fas fa-plus-circle"></i>New Page</a>
+  <a href="<?= siteUrl('dashboard/') ?>"><i class="fas fa-home"></i>Home</a>
+  <a href="<?= siteUrl('dashboard/orders.php') ?>"><i class="fas fa-shopping-bag"></i>Orders</a>
+  <a href="<?= siteUrl('dashboard/create.php') ?>"><i class="fas fa-plus-circle"></i>New Page</a>
   <a href="<?= siteUrl('m/') ?>"><i class="fas fa-search"></i>Find</a>
-  <a href="<?= siteUrl('dashboard/wallet.php') ?>"><i class="fas fa-wallet"></i>Wallet</a>
+  <a href="<?= siteUrl('dashboard/wallet.php') ?>" class="on"><i class="fas fa-wallet"></i>Wallet</a>
 </nav>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>

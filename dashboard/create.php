@@ -234,6 +234,7 @@ nav.top-nav{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);-webkit-
 <!-- Bottom Nav -->
 <nav class="bot-nav">
   <a href="<?= siteUrl('dashboard/') ?>"><i class="fas fa-home"></i>Home</a>
+  <a href="<?= siteUrl('dashboard/orders.php') ?>"><i class="fas fa-shopping-bag"></i>Orders</a>
   <a href="<?= siteUrl('dashboard/create.php') ?>" class="on"><i class="fas fa-plus-circle"></i>New Page</a>
   <a href="<?= siteUrl('m/') ?>"><i class="fas fa-search"></i>Find</a>
   <a href="<?= siteUrl('dashboard/wallet.php') ?>"><i class="fas fa-wallet"></i>Wallet</a>

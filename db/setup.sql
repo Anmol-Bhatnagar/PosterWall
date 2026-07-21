@@ -83,6 +83,23 @@ CREATE TABLE IF NOT EXISTS generations (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Customer Orders Table
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    page_id INT NOT NULL,
+    customer_name VARCHAR(100) NOT NULL,
+    customer_phone VARCHAR(20) NOT NULL,
+    delivery_address TEXT DEFAULT NULL,
+    items TEXT NOT NULL, -- JSON formatted array of ordered items: [{"name":"Dish Name","qty":2,"price":150}]
+    total_amount DECIMAL(10,2) NOT NULL,
+    payment_status VARCHAR(20) DEFAULT 'pending', -- pending, success, failed
+    order_status VARCHAR(20) DEFAULT 'new', -- new, preparing, completed, cancelled
+    rzp_order_id VARCHAR(100) DEFAULT NULL,
+    rzp_payment_id VARCHAR(100) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
+);
+
 -- Admin Account
 -- Password: PosterWall@Admin2025
 INSERT INTO users (name, email, password, role) VALUES (
