@@ -30,10 +30,16 @@ $url = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --p:#7C3AED;--p2:#A855F7;--p3:#C084FC;
+  --p:#7C3AED;--p2:#A855F7;--p3:#7C3AED;
+  --bg:#fbfaff;--text:#1e1b4b;--muted:#6d28d9;
+  --border:rgba(124,58,237,0.16);
+  --glow:rgba(124,58,237,0.18);--glow2:rgba(124,58,237,0.08);
+}
+[data-theme="dark"]{
   --bg:#05050f;--text:#ede9ff;--muted:#8B7FAB;
   --border:rgba(124,58,237,0.22);
   --glow:rgba(124,58,237,0.4);--glow2:rgba(124,58,237,0.18);
+  --p3:#C084FC;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{

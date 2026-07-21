@@ -23,13 +23,23 @@ $typeIcons=['restaurant'=>'🍽️','shop'=>'🛍️','clinic'=>'🏥','professi
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root{
-  --p:#7C3AED;--p2:#A855F7;--p3:#C084FC;
+  --p:#7C3AED;--p2:#A855F7;--p3:#7C3AED;
+  --bg:#fbfaff;--bg2:#f3f0ff;--bg3:#eae5ff;
+  --card:rgba(255,255,255,0.75);--card2:rgba(243,240,255,0.85);
+  --text:#1e1b4b;--muted:#6d28d9;
+  --border:rgba(124,58,237,0.16);--border2:rgba(124,58,237,0.1);
+  --glow:rgba(124,58,237,0.18);--glow2:rgba(124,58,237,0.08);
+  --green:#10b981;--red:#ef4444;--gold:#f59e0b;
+  --nav-bg:rgba(251,250,255,0.78);
+}
+[data-theme="dark"]{
   --bg:#05050f;--bg2:#0d0d1f;--bg3:#12102a;
   --card:rgba(20,14,50,0.65);--card2:rgba(30,20,65,0.8);
   --text:#ede9ff;--muted:#8B7FAB;
   --border:rgba(124,58,237,0.22);--border2:rgba(168,85,247,0.15);
   --glow:rgba(124,58,237,0.35);--glow2:rgba(124,58,237,0.15);
-  --green:#10b981;--red:#ef4444;--gold:#f59e0b;
+  --p3:#C084FC;
+  --nav-bg:rgba(5,5,15,0.78);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
@@ -50,7 +60,7 @@ body::before{
   max-width:700px;
   max-height:700px;
   border-radius:50%;
-  background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(124,58,237,0.15) 0%,transparent 70%);
   pointer-events:none;
   z-index:0;
   animation:orbFloat 18s ease-in-out infinite;
@@ -65,7 +75,7 @@ body::after{
   max-width:500px;
   max-height:500px;
   border-radius:50%;
-  background:radial-gradient(circle,rgba(168,85,247,0.12) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(168,85,247,0.1) 0%,transparent 70%);
   pointer-events:none;
   z-index:0;
 }
@@ -74,7 +84,7 @@ a{text-decoration:none;color:inherit;}
 
 /* NAV */
 nav{
-  background:rgba(5,5,15,0.75);
+  background:var(--nav-bg);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);

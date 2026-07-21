@@ -32,13 +32,23 @@ if (!in_array($tab, $validTabs)) $tab = 'home';
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root{
-  --p:#7C3AED;--pd:#6D28D9;--p2:#A855F7;--p3:#C084FC;
+  --p:#7C3AED;--pd:#6D28D9;--p2:#A855F7;--p3:#7C3AED;
   --a:#E879F9;
+  --bg:#fbfaff;--bg2:#f3f0ff;
+  --card:rgba(255,255,255,0.75);
+  --text:#1e1b4b;--muted:#6d28d9;
+  --border:rgba(124,58,237,0.16);
+  --glow:rgba(124,58,237,0.18);--glow2:rgba(124,58,237,0.08);
+  --nav-bg:rgba(251,250,255,0.78);
+}
+[data-theme="dark"]{
   --bg:#05050f;--bg2:#0d0d1f;
   --card:rgba(20,14,50,0.65);
   --text:#ede9ff;--muted:#8B7FAB;
   --border:rgba(124,58,237,0.22);
   --glow:rgba(124,58,237,0.35);--glow2:rgba(124,58,237,0.15);
+  --p3:#C084FC;
+  --nav-bg:rgba(5,5,15,0.78);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -52,7 +62,7 @@ body::before{
   top:-20%;left:-10%;
   width:60vw;height:60vw;max-width:800px;max-height:800px;
   border-radius:50%;
-  background:radial-gradient(circle,rgba(124,58,237,0.2) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(124,58,237,0.15) 0%,transparent 70%);
   pointer-events:none;z-index:0;
 }
 body::after{
@@ -60,7 +70,7 @@ body::after{
   bottom:-15%;right:-10%;
   width:50vw;height:50vw;max-width:600px;max-height:600px;
   border-radius:50%;
-  background:radial-gradient(circle,rgba(168,85,247,0.14) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(168,85,247,0.1) 0%,transparent 70%);
   pointer-events:none;z-index:0;
 }
 a{text-decoration:none;color:inherit;}
@@ -68,7 +78,7 @@ a{text-decoration:none;color:inherit;}
 /* ── NAV ── */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:100;padding:0 20px;
-  background:rgba(5,5,15,0.78);backdrop-filter:blur(20px);
+  background:var(--nav-bg);
   -webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);
 }
