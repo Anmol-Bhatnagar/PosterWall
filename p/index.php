@@ -54,40 +54,45 @@ if (!empty($menuItemsJson)) {
     <style>
     .pw-fab {
         position: fixed;
-        bottom: 80px;
+        bottom: 28px;
         right: 20px;
-        background: linear-gradient(135deg, #FF6B00, #FF8800);
+        background: linear-gradient(135deg, #7C3AED, #A855F7);
         color: white;
         border: none;
         border-radius: 50px;
         padding: 14px 22px;
         font-family: "Poppins", sans-serif;
-        font-weight: 600;
-        font-size: 0.95rem;
-        box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4);
+        font-weight: 700;
+        font-size: 0.92rem;
+        box-shadow: 0 8px 32px rgba(124, 58, 237, 0.5);
         cursor: pointer;
         z-index: 9999;
         display: flex;
         align-items: center;
         gap: 8px;
         transition: all 0.3s ease;
-        animation: pw-pulse 2s infinite;
     }
     .pw-fab:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 30px rgba(255, 107, 0, 0.5);
+        transform: translateY(-3px);
+        box-shadow: 0 14px 44px rgba(124, 58, 237, 0.6);
     }
-    @keyframes pw-pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.04); }
-        100% { transform: scale(1); }
+    .pw-fab-badge {
+        background: #fff;
+        color: #7C3AED;
+        border-radius: 50%;
+        font-size: 0.72rem;
+        font-weight: 800;
+        padding: 2px 7px;
+        min-width: 20px;
+        text-align: center;
     }
     
     .pw-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.5);
-        backdrop-filter: blur(4px);
+        background: rgba(0,0,0,0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         z-index: 10000;
         display: none;
         opacity: 0;
@@ -103,37 +108,56 @@ if (!empty($menuItemsJson)) {
         bottom: -100%;
         left: 0;
         right: 0;
-        height: 85vh;
-        background: #ffffff;
-        border-radius: 24px 24px 0 0;
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+        height: 88vh;
+        background: rgba(10,7,30,0.97);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(124,58,237,0.3);
+        border-radius: 28px 28px 0 0;
+        box-shadow: 0 -16px 60px rgba(124,58,237,0.2);
         z-index: 10001;
         transition: bottom 0.4s cubic-bezier(0.32, 0.94, 0.6, 1);
         display: flex;
         flex-direction: column;
         font-family: "Poppins", sans-serif;
-        color: #1a1a2e;
+        color: #ede9ff;
         text-align: left;
+        overflow: hidden;
     }
     .pw-drawer.open {
         bottom: 0;
     }
+    .pw-drawer::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(168,85,247,0.12), transparent);
+        pointer-events: none;
+    }
     
     .pw-dr-header {
-        padding: 20px;
-        border-bottom: 1px solid rgba(0,0,0,0.06);
+        padding: 20px 20px 16px;
+        border-bottom: 1px solid rgba(124,58,237,0.2);
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
     .pw-dr-title {
         font-weight: 700;
-        font-size: 1.2rem;
-        color: #FF6B00;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, #A855F7, #C084FC);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     .pw-dr-close {
-        border: none;
-        background: rgba(0,0,0,0.05);
+        border: 1px solid rgba(124,58,237,0.3);
+        background: rgba(124,58,237,0.12);
+        color: #C084FC;
         width: 32px;
         height: 32px;
         border-radius: 50%;
@@ -142,22 +166,30 @@ if (!empty($menuItemsJson)) {
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.2s;
     }
+    .pw-dr-close:hover { background: rgba(124,58,237,0.3); }
     
     .pw-dr-body {
         flex: 1;
         overflow-y: auto;
         padding: 20px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(124,58,237,0.3) transparent;
     }
     
     .pw-category-title {
         font-weight: 700;
-        font-size: 1rem;
+        font-size: 0.88rem;
         margin: 18px 0 10px;
-        padding-bottom: 4px;
-        border-bottom: 2px solid #FF6B00;
-        display: inline-block;
-        color: #FF6B00;
+        padding: 4px 12px;
+        border-radius: 6px;
+        background: rgba(124,58,237,0.12);
+        border-left: 3px solid #A855F7;
+        display: block;
+        color: #C084FC;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     .pw-item-row {
@@ -165,7 +197,7 @@ if (!empty($menuItemsJson)) {
         justify-content: space-between;
         align-items: center;
         padding: 12px 0;
-        border-bottom: 1px solid rgba(0,0,0,0.04);
+        border-bottom: 1px solid rgba(124,58,237,0.1);
     }
     
     .pw-item-info {
@@ -176,11 +208,12 @@ if (!empty($menuItemsJson)) {
     .pw-item-name {
         font-weight: 600;
         font-size: 0.92rem;
+        color: #ede9ff;
     }
     
     .pw-item-price {
         font-weight: 700;
-        color: #FF6B00;
+        color: #C084FC;
         font-size: 0.88rem;
         margin-top: 2px;
     }
@@ -192,9 +225,9 @@ if (!empty($menuItemsJson)) {
     }
     
     .pw-btn-add {
-        background: #fff;
-        border: 1px solid #FF6B00;
-        color: #FF6B00;
+        background: rgba(124,58,237,0.12);
+        border: 1px solid rgba(124,58,237,0.4);
+        color: #C084FC;
         padding: 6px 16px;
         border-radius: 8px;
         font-weight: 600;
@@ -203,29 +236,33 @@ if (!empty($menuItemsJson)) {
         transition: all 0.2s;
     }
     .pw-btn-add:hover {
-        background: #FF6B00;
+        background: rgba(124,58,237,0.3);
         color: #fff;
+        box-shadow: 0 4px 16px rgba(124,58,237,0.3);
     }
     
     .pw-counter {
         display: flex;
         align-items: center;
-        background: #FF6B00;
+        background: linear-gradient(135deg, #7C3AED, #A855F7);
         color: white;
-        border-radius: 8px;
+        border-radius: 10px;
         overflow: hidden;
+        box-shadow: 0 4px 14px rgba(124,58,237,0.35);
     }
     
     .pw-count-btn {
         border: none;
         background: transparent;
         color: white;
-        width: 28px;
-        height: 28px;
+        width: 30px;
+        height: 30px;
         font-size: 0.9rem;
         font-weight: bold;
         cursor: pointer;
+        transition: background 0.15s;
     }
+    .pw-count-btn:hover { background: rgba(255,255,255,0.15); }
     
     .pw-count-val {
         padding: 0 4px;
@@ -237,26 +274,28 @@ if (!empty($menuItemsJson)) {
     
     .pw-sticky-footer {
         padding: 16px 20px;
-        border-top: 1px solid rgba(0,0,0,0.06);
-        background: #fff;
+        border-top: 1px solid rgba(124,58,237,0.2);
+        background: rgba(10,7,30,0.98);
         display: none;
     }
     
     .pw-footer-btn {
         width: 100%;
-        background: linear-gradient(135deg, #FF6B00, #FF8800);
+        background: linear-gradient(135deg, #7C3AED, #A855F7);
         color: white;
         border: none;
-        border-radius: 12px;
-        padding: 14px;
+        border-radius: 50px;
+        padding: 14px 20px;
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         cursor: pointer;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 6px 18px rgba(255, 107, 0, 0.3);
+        box-shadow: 0 6px 24px rgba(124,58,237,0.4);
+        transition: all 0.3s;
     }
+    .pw-footer-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 32px rgba(124,58,237,0.5); }
     
     .pw-form-group {
         margin-bottom: 14px;
@@ -266,61 +305,73 @@ if (!empty($menuItemsJson)) {
         display: block;
         font-size: 0.78rem;
         font-weight: 600;
-        color: #666;
-        margin-bottom: 4px;
+        color: #8B7FAB;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     .pw-input {
         width: 100%;
-        padding: 12px;
-        border-radius: 10px;
-        border: 1.5px solid rgba(0,0,0,0.08);
+        padding: 13px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(124,58,237,0.3);
         font-family: inherit;
         font-size: 0.9rem;
         outline: none;
         box-sizing: border-box;
+        background: rgba(20,14,50,0.8);
+        color: #ede9ff;
+        transition: border-color 0.25s;
     }
     .pw-input:focus {
-        border-color: #FF6B00;
+        border-color: #A855F7;
+        box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
     }
+    .pw-input::placeholder { color: #8B7FAB; }
     
     .pw-btn-secondary {
-        background: rgba(0,0,0,0.05);
-        color: #444;
-        border: none;
+        background: rgba(124,58,237,0.1);
+        color: #C084FC;
+        border: 1px solid rgba(124,58,237,0.25);
         width: 100%;
         padding: 12px;
-        border-radius: 10px;
+        border-radius: 50px;
         font-weight: 600;
         margin-top: 8px;
         cursor: pointer;
+        transition: all 0.25s;
     }
+    .pw-btn-secondary:hover { background: rgba(124,58,237,0.2); }
     
     .pw-success-screen {
         text-align: center;
         padding: 30px 10px;
     }
     .pw-success-icon {
-        width: 60px;
-        height: 60px;
-        background: #10b981;
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #7C3AED, #10b981);
         color: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
-        margin: 0 auto 16px;
+        font-size: 2.2rem;
+        margin: 0 auto 20px;
+        box-shadow: 0 8px 32px rgba(124,58,237,0.3);
     }
     
     .pw-summary-box {
-        background: rgba(0,0,0,0.02);
-        border: 1px dashed rgba(0,0,0,0.08);
-        border-radius: 12px;
-        padding: 14px;
+        background: rgba(124,58,237,0.08);
+        border: 1px dashed rgba(124,58,237,0.25);
+        border-radius: 14px;
+        padding: 16px;
         margin: 16px 0;
         text-align: left;
         font-size: 0.85rem;
+        color: #8B7FAB;
     }
+    .pw-summary-box strong { color: #C084FC; }
     </style>
     
     <button class="pw-fab" onclick="pwToggleDrawer()"><i class="fas fa-shopping-bag"></i> Place Order</button>

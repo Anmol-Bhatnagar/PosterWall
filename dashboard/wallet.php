@@ -13,38 +13,106 @@ $rechargeMode = isset($_GET['recharge']);
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root{--p:#FF6B00;--bg:#ffffff;--bg2:#f7f9fc;--card:#ffffff;--text:#1a1a2e;--muted:#6c7b94;--border:rgba(0,0,0,0.08);}
-[data-theme="dark"]{--bg:#0a0e27;--bg2:#111d3a;--card:#1a2d4f;--text:#f0f2f5;--muted:#8892a4;--border:rgba(255,255,255,0.08);}
+:root{
+  --p:#7C3AED;--p2:#A855F7;--p3:#C084FC;
+  --bg:#05050f;--bg2:#0d0d1f;
+  --card:rgba(20,14,50,0.65);
+  --text:#ede9ff;--muted:#8B7FAB;
+  --border:rgba(124,58,237,0.22);
+  --glow:rgba(124,58,237,0.35);--glow2:rgba(124,58,237,0.15);
+}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100svh;padding-bottom:90px;transition:background .3s ease,color .3s ease;}
+body{
+  font-family:'Poppins',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100svh;padding-bottom:90px;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;
+  top:-20%;left:-10%;
+  width:60vw;height:60vw;max-width:700px;max-height:700px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(124,58,237,0.18) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
 a{text-decoration:none;color:inherit;}
-nav{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 16px;position:sticky;top:0;z-index:100;}
-[data-theme="dark"] nav{background:rgba(10,14,39,.88);}
-.nav-in{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;}
-.logo{font-family:'Baloo 2',cursive;font-size:1.35rem;font-weight:800;background:linear-gradient(135deg,var(--p),#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+nav{
+  background:rgba(5,5,15,0.78);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 16px;position:sticky;top:0;z-index:100;
+}
+.nav-in{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
+.logo{
+  font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;
+  background:linear-gradient(135deg,var(--p2),var(--p3),#e879f9);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
 .logo span{-webkit-text-fill-color:unset;}
-.con{max-width:900px;margin:0 auto;padding:28px 16px;min-height:calc(100svh - 200px);}
-.card{background:rgba(255,255,255,.5);backdrop-filter:blur(10px);border:1.5px solid var(--border);border-radius:18px;padding:28px;}
-[data-theme="dark"] .card{background:rgba(26,45,79,.3);}
-.title{font-family:'Baloo 2',cursive;font-size:1.85rem;font-weight:800;margin-bottom:8px;}
+.con{max-width:960px;margin:0 auto;padding:28px 16px;min-height:calc(100svh - 200px);position:relative;z-index:1;}
+.card{
+  background:var(--card);backdrop-filter:blur(20px);
+  border:1px solid rgba(124,58,237,0.3);
+  border-radius:24px;padding:36px;
+  position:relative;overflow:hidden;
+  box-shadow:0 16px 60px rgba(124,58,237,0.12);
+}
+.card::before{
+  content:'';position:absolute;top:-30%;right:-10%;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(168,85,247,0.15),transparent);
+  pointer-events:none;
+}
+.title{
+  font-family:'Baloo 2',cursive;font-size:1.85rem;font-weight:800;margin-bottom:8px;
+  background:linear-gradient(135deg,#fff 30%,var(--p3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
 .subtitle{color:var(--muted);font-size:.95rem;margin-bottom:22px;line-height:1.5;}
-.balance{font-family:'Baloo 2',cursive;font-size:2.8rem;background:linear-gradient(135deg,var(--p),#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px;}
+.balance{
+  font-family:'Baloo 2',cursive;font-size:3rem;
+  background:linear-gradient(135deg,#fff,var(--p3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:16px;
+  filter:drop-shadow(0 0 20px rgba(168,85,247,0.3));
+}
 .info{color:var(--muted);font-size:.92rem;line-height:1.7;margin-bottom:24px;}
-.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:12px;background:linear-gradient(135deg,var(--p),#e05a00);color:#fff;font-weight:700;border:none;cursor:pointer;font-size:.95rem;box-shadow:0 6px 20px rgba(255,107,0,.2);transition:all .3s;}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,107,0,.3);}
-.btn-secondary{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:10px;background:transparent;border:1.5px solid var(--border);color:var(--text);cursor:pointer;font-size:.9rem;font-weight:600;transition:all .3s;}
-.btn-secondary:hover{border-color:var(--p);background:rgba(255,107,0,.08);}
-.alert{background:linear-gradient(135deg,rgba(255,107,0,.12),rgba(255,215,0,.08));backdrop-filter:blur(10px);border:1.5px solid rgba(255,107,0,.25);border-radius:14px;padding:16px;margin-bottom:20px;color:var(--text);}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:14px 22px;border-radius:50px;
+  background:linear-gradient(135deg,var(--p),var(--p2));
+  color:#fff;font-weight:700;border:none;
+  cursor:pointer;font-size:.95rem;
+  box-shadow:0 6px 24px var(--glow);transition:all .3s;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 36px var(--glow);}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:10px 16px;border-radius:50px;
+  background:rgba(124,58,237,0.1);
+  border:1px solid var(--border);
+  color:var(--p3);cursor:pointer;font-size:.9rem;font-weight:600;
+  transition:all .3s;
+}
+.btn-secondary:hover{background:rgba(124,58,237,0.2);}
+.alert{
+  background:rgba(124,58,237,0.12);backdrop-filter:blur(10px);
+  border:1px solid rgba(124,58,237,0.25);
+  border-radius:14px;padding:16px;margin-bottom:20px;color:var(--text);
+}
 .wallet-row{display:grid;gap:14px;}
-.bot-nav{position:fixed;top:auto;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:200;}
-.bot-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 4px;color:var(--muted);font-size:.6rem;font-weight:500;transition:all .2s;}
-.bot-nav a:hover{color:var(--p);}
-.bot-nav a.on{color:var(--p);}
-.bot-nav a i{font-size:1.05rem;}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border:1.5px solid var(--border);padding:12px 18px;border-radius:10px;font-size:.88rem;z-index:999;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.1);}
-.toast.ok{color:#10b981;} .toast.err{color:#ef4444;} .toast.info{color:var(--p);}
-.theme-toggle{width:40px;height:40px;border-radius:10px;background:transparent;border:1.5px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:all .3s;}
-.theme-toggle:hover{border-color:var(--p);background:rgba(255,107,0,.1);}
+.bot-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(5,5,15,0.82);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;z-index:200;}
+.bot-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 4px;color:var(--muted);font-size:.58rem;font-weight:500;transition:all .25s;}
+.bot-nav a:hover{color:var(--p3);}
+.bot-nav a.on{color:var(--p3);}
+.bot-nav a.on i{filter:drop-shadow(0 0 6px var(--p2));}
+.bot-nav a i{font-size:1.1rem;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(13,13,31,.95);backdrop-filter:blur(16px);border:1px solid var(--border);padding:12px 20px;border-radius:50px;font-size:.88rem;z-index:999;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.toast.ok{color:#34d399;border-color:rgba(16,185,129,.4);}
+.toast.err{color:#f87171;border-color:rgba(239,68,68,.4);}
+.toast.info{color:var(--p3);border-color:rgba(124,58,237,.4);}
+.theme-toggle{width:40px;height:40px;border-radius:10px;background:rgba(124,58,237,0.12);border:1px solid var(--border);color:var(--p3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .3s;}
+.theme-toggle:hover{background:rgba(124,58,237,0.3);}
 </style>
 </head>
 <body>
@@ -75,14 +143,14 @@ nav{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);-webkit-backdrop
   </div>
 </div>
 <div id="pay-modal" class="overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px 20px;width:100%;max-width:420px;">
-    <button class="modal-close" onclick="document.getElementById('pay-modal').style.display='none'" style="float:right;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;">✕</button>
+  <div style="background:rgba(13,13,31,.97);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:24px;padding:28px 24px;width:100%;max-width:420px;">
+    <button class="modal-close" onclick="document.getElementById('pay-modal').style.display='none'" style="float:right;background:rgba(124,58,237,.15);border:1px solid var(--border);color:var(--muted);font-size:1rem;cursor:pointer;border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;">✕</button>
     <h3 style="font-family:'Baloo 2',cursive;font-size:1.2rem;margin-bottom:12px;color:#fff;">💰 Wallet Recharge</h3>
-    <p style="color:var(--muted);font-size:.92rem;margin-bottom:16px;">Current Balance: <strong style="color:#FF6B00;">₹<?= number_format($bal,2) ?></strong></p>
+    <p style="color:var(--muted);font-size:.92rem;margin-bottom:16px;">Current Balance: <strong style="color:#A855F7;">₹<?= number_format($bal,2) ?></strong></p>
     <button onclick="pay(9)" class="btn" style="width:100%;margin-bottom:12px;"><i class="fas fa-bolt"></i> ₹9 — 1 Page</button>
-    <button onclick="pay(79)" class="btn" style="width:100%;margin-bottom:12px;background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--border);">₹79 — 10 Pages</button>
-    <button onclick="pay(179)" class="btn" style="width:100%;margin-bottom:12px;background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--border);">₹179 — 25 Pages</button>
-    <button onclick="pay(499)" class="btn" style="width:100%;background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--border);">₹499 — Unlimited Month</button>
+    <button onclick="pay(79)" class="btn" style="width:100%;margin-bottom:12px;background:rgba(124,58,237,.2);box-shadow:none;">₹79 — 10 Pages</button>
+    <button onclick="pay(179)" class="btn" style="width:100%;margin-bottom:12px;background:rgba(124,58,237,.2);box-shadow:none;">₹179 — 25 Pages</button>
+    <button onclick="pay(499)" class="btn" style="width:100%;background:rgba(124,58,237,.2);box-shadow:none;">₹499 — Unlimited Month</button>
   </div>
 </div>
 <nav class="bot-nav">
@@ -106,7 +174,7 @@ function pay(amount){
     new Razorpay({key:'<?= RZP_KEY_ID ?>',amount:amount*100,currency:'INR',name:'PosterWall',order_id:data.order_id,handler:(r)=>{
       fetch('<?= SITE_URL ?>/api/payment.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify',razorpay_payment_id:r.razorpay_payment_id,razorpay_order_id:r.razorpay_order_id,razorpay_signature:r.razorpay_signature})})
       .then(res=>res.json()).then(v=>{if(v.success){toast('₹'+amount+' add ho gaya!','ok');setTimeout(()=>location.reload(),1500);}});
-    },prefill:{name:'<?= addslashes($_SESSION['name'] ?? '') ?>',email:'<?= addslashes($_SESSION['email'] ?? '') ?>'},theme:{color:'#FF6B00'}}).open();
+    },prefill:{name:'<?= addslashes($_SESSION['name'] ?? '') ?>',email:'<?= addslashes($_SESSION['email'] ?? '') ?>'},theme:{color:'#7C3AED'}}).open();
   });
 }
 
