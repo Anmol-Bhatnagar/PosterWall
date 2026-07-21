@@ -30,16 +30,20 @@ $url = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --p:#7C3AED;--p2:#A855F7;--p3:#7C3AED;
-  --bg:#fbfaff;--text:#1e1b4b;--muted:#6d28d9;
-  --border:rgba(124,58,237,0.16);
-  --glow:rgba(124,58,237,0.18);--glow2:rgba(124,58,237,0.08);
+  --p:#FF6B00;--p2:#FFD700;--p3:#FF6B00;
+  --bg:#ffffff;--text:#1a1a2e;--muted:#6c7b94;
+  --border:rgba(0,0,0,0.08);
+  --glow:rgba(255,107,0,0.25);--glow2:rgba(255,107,0,0.04);
+  --orb-color1:rgba(255,107,0,0.04);
+  --orb-color2:rgba(255,107,0,0.02);
 }
 [data-theme="dark"]{
+  --p:#7C3AED;--p2:#A855F7;--p3:#C084FC;
   --bg:#05050f;--text:#ede9ff;--muted:#8B7FAB;
   --border:rgba(124,58,237,0.22);
   --glow:rgba(124,58,237,0.4);--glow2:rgba(124,58,237,0.18);
-  --p3:#C084FC;
+  --orb-color1:rgba(124,58,237,0.22);
+  --orb-color2:rgba(168,85,247,0.1);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
@@ -57,7 +61,7 @@ body::before{
   transform:translate(-50%,-60%);
   width:min(700px,90vw);height:min(700px,90vw);
   border-radius:50%;
-  background:radial-gradient(circle,rgba(124,58,237,0.22) 0%,rgba(168,85,247,0.1) 40%,transparent 70%);
+  background:radial-gradient(circle,var(--orb-color1) 0%,var(--orb-color2) 40%,transparent 70%);
   pointer-events:none;
   animation:orbPulse 6s ease-in-out infinite;
 }

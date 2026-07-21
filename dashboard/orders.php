@@ -46,22 +46,36 @@ if ($ordersRes) {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root{
-  --p:#7C3AED;--p2:#A855F7;--p3:#7C3AED;
-  --bg:#fbfaff;--bg2:#f3f0ff;
-  --card:rgba(255,255,255,0.75);
-  --text:#1e1b4b;--muted:#6d28d9;
-  --border:rgba(124,58,237,0.16);
-  --glow:rgba(124,58,237,0.18);--glow2:rgba(124,58,237,0.08);
-  --nav-bg:rgba(251,250,255,0.78);
+  --p:#FF6B00;--pd:#e05a00;--p2:#FFD700;--p3:#FF6B00;
+  --bg:#ffffff;--bg2:#f7f9fc;
+  --card:#ffffff;
+  --text:#1a1a2e;--muted:#6c7b94;
+  --border:rgba(0,0,0,0.08);
+  --glow:rgba(255,107,0,0.25);--glow2:rgba(255,107,0,0.04);
+  --nav-bg:rgba(255,255,255,0.85);
+  --toggle-bg:rgba(255,107,0,0.08);
+  --h1-grad:linear-gradient(135deg,var(--text),var(--text));
+  --logo-g1:#FF6B00;--logo-g2:#FFD700;--logo-g3:#FFD700;
+  --orb-color1:rgba(255,107,0,0.04);
+  --orb-color2:rgba(255,107,0,0.02);
+  --btn-bg:rgba(0,0,0,0.02);
+  --btn-bg-hover:rgba(255,107,0,0.08);
 }
 [data-theme="dark"]{
+  --p:#7C3AED;--pd:#6D28D9;--p2:#A855F7;--p3:#C084FC;
   --bg:#05050f;--bg2:#0d0d1f;
   --card:rgba(20,14,50,0.65);
   --text:#ede9ff;--muted:#8B7FAB;
   --border:rgba(124,58,237,0.22);
   --glow:rgba(124,58,237,0.35);--glow2:rgba(124,58,237,0.15);
-  --p3:#C084FC;
   --nav-bg:rgba(5,5,15,0.78);
+  --toggle-bg:rgba(124,58,237,0.12);
+  --h1-grad:linear-gradient(135deg,#fff 30%,var(--p3));
+  --logo-g1:#A855F7;--logo-g2:#C084FC;--logo-g3:#e879f9;
+  --orb-color1:rgba(124,58,237,0.15);
+  --orb-color2:rgba(168,85,247,0.1);
+  --btn-bg:rgba(124,58,237,0.06);
+  --btn-bg-hover:rgba(124,58,237,0.18);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
@@ -75,7 +89,7 @@ body::before{
   top:-20%;left:-10%;
   width:60vw;height:60vw;max-width:700px;max-height:700px;
   border-radius:50%;
-  background:radial-gradient(circle,rgba(124,58,237,0.15) 0%,transparent 70%);
+  background:radial-gradient(circle,var(--orb-color1) 0%,transparent 70%);
   pointer-events:none;z-index:0;
 }
 a{text-decoration:none;color:inherit;}
@@ -85,23 +99,23 @@ nav{
   padding:0 16px;position:sticky;top:0;z-index:100;
 }
 .nav-in{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
-.logo{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--p2),var(--p3),#e879f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--logo-g1),var(--logo-g2),var(--logo-g3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .logo span{-webkit-text-fill-color:unset;}
 .nav-r{display:flex;align-items:center;gap:10px;}
 .nav-av{width:36px;height:36px;border-radius:50%;border:2px solid var(--p2);object-fit:cover;box-shadow:0 0 14px var(--glow2);}
 .theme-toggle{
   width:36px;height:36px;border-radius:10px;
-  background:rgba(124,58,237,0.12);
+  background:var(--toggle-bg);
   border:1px solid var(--border);
   color:var(--p3);cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   font-size:.9rem;transition:all .3s;
 }
-.theme-toggle:hover{background:rgba(124,58,237,0.3);}
+.theme-toggle:hover{background:var(--btn-bg-hover);}
 .con{max-width:960px;margin:0 auto;padding:28px 16px;min-height:calc(100svh - 200px);position:relative;z-index:1;}
 .page-title{
   font-family:'Baloo 2',cursive;font-size:1.85rem;font-weight:800;margin-bottom:8px;
-  background:linear-gradient(135deg,#fff 30%,var(--p3));
+  background:var(--h1-grad);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
 .page-sub{color:var(--muted);font-size:.95rem;line-height:1.6;margin-bottom:24px;}
@@ -123,7 +137,7 @@ nav{
 .tab-btn{
   padding:8px 16px;border-radius:20px;
   border:1px solid var(--border);
-  background:rgba(124,58,237,0.06);
+  background:var(--btn-bg);
   color:var(--muted);font-size:0.8rem;font-weight:600;
   cursor:pointer;white-space:nowrap;transition:all 0.25s;
 }
@@ -132,7 +146,7 @@ nav{
   color:white;border-color:transparent;
   box-shadow:0 4px 16px var(--glow);
 }
-.tab-btn:hover:not(.active){border-color:var(--p2);color:var(--p3);}
+.tab-btn:hover:not(.active){border-color:var(--p2);color:var(--p3);background:var(--btn-bg-hover);}
 
 /* Orders List */
 .orders-list{display:grid;grid-template-columns:1fr;gap:20px;}
