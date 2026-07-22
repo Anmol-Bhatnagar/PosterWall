@@ -289,6 +289,25 @@ function isPowerUser(?array $u = null): bool {
     return !empty($u['is_power_user']);
 }
 
+// ── CSRF Protection Helper Functions ──────────────────────────
+function generateCsrfToken(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function verifyCsrfToken(?string $token): bool {
+    if (empty($_SESSION['csrf_token']) || empty($token)) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $token);
+}
+
+function csrfInput(): string {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCsrfToken()) . '">';
+}
+
 // ── OpenRouter API Call (Text + Vision) ───────────────────────
 function callOpenRouter(array $messages, string $model, int $maxTokens = 4096): ?string {
     if (empty(OR_API_KEY)) {
