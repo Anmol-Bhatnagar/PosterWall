@@ -9,6 +9,12 @@ $db   = db();
 $successMsg = '';
 // Handle status update
 if (isset($_POST['update_status'])) {
+    // Validate CSRF token
+    $csrfToken = $_POST['csrf_token'] ?? '';
+    if (!verifyCsrfToken($csrfToken)) {
+        die('403 Forbidden: Invalid CSRF token.');
+    }
+    
     $orderId = (int)$_POST['order_id'];
     $status  = $db->real_escape_string($_POST['status']);
     
@@ -323,6 +329,7 @@ nav{
                     </div>
                     
                     <form method="POST" class="action-form">
+                        <?= csrfInput() ?>
                         <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
                         <select name="status" class="action-select">
                             <option value="new" <?= $status==='new'?'selected':'' ?>>New</option>
