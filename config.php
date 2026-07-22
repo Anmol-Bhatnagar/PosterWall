@@ -3,7 +3,19 @@
 // POSTERWALL.IN v2.0 — DIGITAL IDENTITY PLATFORM
 // Tech Eagles | Mahakumbrix Innovation
 // ============================================================
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    // Set secure, httponly, and SameSite attribute for session cookies
+    $cookieParams = [
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ];
+    session_set_cookie_params($cookieParams);
+    session_start();
+}
 
 // ── Load .env file for production deployment ──────────────
 function loadEnvFile(string $path = ''): void {
