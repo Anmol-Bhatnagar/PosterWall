@@ -1,5 +1,12 @@
 <?php
 require_once 'config.php';
+
+// Restrict access to CLI or local environment (localhost) only
+if (php_sapi_name() !== 'cli' && !isLocalHost()) {
+    http_response_code(403);
+    die('403 Forbidden: Admin reset is only allowed from CLI or local environment.');
+}
+
 $hash = password_hash('PosterWall@Admin2025', PASSWORD_BCRYPT);
 $db   = db();
 $esc  = $db->real_escape_string($hash);
